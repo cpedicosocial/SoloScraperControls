@@ -110,14 +110,6 @@ class ScraperControls {
 		driver.manage().window().maximize();
 		driver.navigate().to(address);
 
-		// try {
-		// WebDriverWait wait = new WebDriverWait(driver, 10);
-		// wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("hstp_14536_interstitial_pub"))).click();
-		// System.out.println("Successfully closed efbet add");
-		// } catch (Exception e) {
-		// System.out.println("Problem closing efbet add");
-		// }
-
 		controlCollectUpToDate(driver, set, yesterday, result, competition);
 		/**
 		 * while (true) { int setSize = set.size(); String html =
@@ -143,10 +135,6 @@ class ScraperControls {
 		 * 
 		 * if (html.equals(htmlAfter)) break;
 		 */
-
-		// Additional stopping condition - no new entries
-		// if (set.size() == setSize)
-		// break;
 
 		driver.close();
 
@@ -867,7 +855,7 @@ class ScraperControls {
 		}
 	}
 	
-	static void controlOverTwo(floatasianHome, ArrayList<main.Line> lines, float line, float asianAway, WebElement currentDiv, Actions actions){
+	static void controlOverTwo(float asianHome, ArrayList<main.Line> lines, float line, float asianAway, WebElement currentDiv, Actions actions){
 		if (asianHome != -1f)
 			lines.add(new main.Line(line, asianHome, asianAway, "Pinn"));
 	
