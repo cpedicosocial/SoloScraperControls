@@ -867,7 +867,7 @@ class ScraperControls {
 		}
 	}
 	
-	static void controlOverTwo(float asianHome, ArrayList<main.Line> lines, float line, float asianAway, WebElement currentDiv, Actions actions){
+	static void controlOverTwo(floatasianHome, ArrayList<main.Line> lines, float line, float asianAway, WebElement currentDiv, Actions actions){
 		if (asianHome != -1f)
 			lines.add(new main.Line(line, asianHome, asianAway, "Pinn"));
 	
@@ -925,7 +925,5 @@ class ScraperControls {
 	}
 	
 	
-
-}//di classe
 
 }//di classe
