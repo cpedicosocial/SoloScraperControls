@@ -799,6 +799,9 @@ public class Scraper {
 
 		Elements divsPlayers = fixture.getElementsByClass("combined-lineups-container");
 		Element divSubstitutes = divsPlayers.size() > 1 ? divsPlayers.get(1) : null;
+		
+		ScraperControls.controlSubstitutes(divSubstitutes, divsPlayers, homeTeam, awayTeam, fix, playerFixtures);
+		/**
 		if (divSubstitutes != null) {
 			Element tableHome = divSubstitutes.select("div.container.left").first();
 			Element tableAway = divSubstitutes.select("div.container.right").first();
@@ -817,7 +820,7 @@ public class Scraper {
 			} catch (Exception e) {
 				System.out.println("parse");
 			}
-		}
+		}*/
 
 		// Goals and assists
 		// ========================================================================================

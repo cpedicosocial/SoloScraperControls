@@ -912,6 +912,28 @@ class ScraperControls {
 		}
 	}
 	
+	static void controlSubstitutes(Elements divSubstitutes, Elements divsPlayers, String homeTeam, String awayTeam, 
+			ExtendedFixture fix, ArrayList<PlayerFixture> playerFixtures) {
+		if (divSubstitutes != null) {
+			Element tableHome = divSubstitutes.select("div.container.left").first();
+			Element tableAway = divSubstitutes.select("div.container.right").first();
+	
+			Elements rowsHome = tableHome.select("table").first().select("tr");
+			try {
+				ScraperControls.controlSecondForGetFixtureFull(rowsHome, homeTeam, fix, playerFixtures);
+			} catch (Exception e) {
+				System.err.println("da ddassd");
+			}
+	
+			Elements rowsAway = tableAway.select("table").first().select("tr");
+			try {
+				ScraperControls.controlSecondForGetFixtureFull(rowsAway, awayTeam, fix, playerFixtures);
+				//gli if sono uguali a quelli di sopra, tranne per le prime 2 variabili
+			} catch (Exception e) {
+				System.out.println("parse");
+			}
+		}
+	}
 	
 
 }//di classe
