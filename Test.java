@@ -698,7 +698,7 @@ public class Test {
 		}
 	}
 	
-	private static void controlIfOptimalsByCompetition(filedata) {
+	private static void controlIfOptimalsByCompetition(FileInputStream filedata) {
 		if (filedata != null) {
 			try {
 				filedata.close (); // OK
