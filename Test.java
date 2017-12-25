@@ -698,6 +698,16 @@ public class Test {
 		}
 	}
 	
+	private static void controlIfOptimalsByCompetition(filedata) {
+		if (filedata != null) {
+			try {
+				filedata.close (); // OK
+			} catch (java.io.IOException e3) {
+				System.out.println("I/O Exception");
+	       }
+		}
+	}
+	
 	//Todo: da risolvere??
 	public static void optimalsbyCompetition() throws IOException, ParseException {
 
@@ -712,29 +722,10 @@ public class Test {
 			} catch (Exception e) {
 				System.out.println("Something was wrong");
 			} finally {
-				if (filedata != null) {
-					try {
-						filedata.close (); // OK
-					} catch (java.io.IOException e3) {
-						System.out.println("I/O Exception");
-	               }
-				}
+				controlIfOptimalsByCompetition(filedata);
 			}
 
 			controlFirstOptimalsByCompetition(workbookdata, year, optimals);
-			/**
-			Iterator<Sheet> sh = workbookdata.sheetIterator();
-			while (sh.hasNext()) {
-				HSSFSheet i = (HSSFSheet) sh.next();
-				Settings set = XlSUtils.predictionSettings(i, year);
-				if (optimals.get(i.getSheetName()) != null)
-					optimals.get(i.getSheetName()).add(set);
-				else {
-					optimals.put(i.getSheetName(), new ArrayList<>());
-					optimals.get(i.getSheetName()).add(set);
-				}
-			}*/
-
 			workbookdata.close();
 		}
 		
@@ -751,28 +742,10 @@ public class Test {
 			} catch (Exception e) {
 				System.out.println("Something was wrong");
 			} finally {
-				if (filedata != null) {
-					try {
-						filedata.close (); // OK
-					} catch (java.io.IOException e3) {
-						System.out.println("I/O Exception");
-	               }
-				}
+				controlIfOptimalsByCompetition(filedata);
 			}
 
 			controlSecondOptimalsByCompetition(workbookdata, year, optimals, dont, total);
-			/**
-			Iterator<Sheet> sh = workbookdata.sheetIterator();
-			while (sh.hasNext()) {
-				HSSFSheet i = (HSSFSheet) sh.next();
-				if (dont.contains(i.getSheetName()))
-					continue;
-				ArrayList<Settings> setts = optimals.get(i.getSheetName());
-				Settings set = Utils.getSettings(setts, year - 1);
-				ArrayList<FinalEntry> fes = XlSUtils.runWithSettingsList(i, XlSUtils.selectAllAll(i), set);
-				float profit = Utils.getProfit(fes);
-				total += profit;
-			}*/
 			
 			totalPeriod += total;
 			System.out.println("Total for " + year + " : " + total);
