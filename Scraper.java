@@ -2227,8 +2227,8 @@ public class Scraper {
 
 		}
 
-		//fare i metodi per i DUE IF SUCCESSIVI?
-		if (matchOdds.get(0) instanceof AsianOdds) {
+		ScraperControls.controlIfHomeAwayOdds(matchOdds, trueOdds, pinnOdds);
+		/**if (matchOdds.get(0) instanceof AsianOdds) {
 			AsianOdds trueAsianOdds = (AsianOdds) trueOdds;
 			AsianOdds pinnAsianOdds = (AsianOdds) pinnOdds;
 			for (Odds i : matchOdds) {
@@ -2241,11 +2241,12 @@ public class Scraper {
 				if (m.awayOdds > pinnAsianOdds.awayOdds)
 					System.out.println(i.bookmaker + " A " + m.line + " at " + m.awayOdds + " true: "
 							+ Utils.format(trueAsianOdds.awayOdds) + " "
-							+ Utils.format(100 * m.awayOdds / trueAsianOdds.awayOdds - 100) + "%");*/
+							+ Utils.format(100 * m.awayOdds / trueAsianOdds.awayOdds - 100) + "%");
 			}
-		}
+		}*/
 
-		if (matchOdds.get(0) instanceof OverUnderOdds) {
+		ScraperControls.controlIfOverUnderOdds(matchOdds, trueOdds, pinnOdds);
+		/**if (matchOdds.get(0) instanceof OverUnderOdds) {
 			OverUnderOdds trueOverUnderOdds = (OverUnderOdds) trueOdds;
 			OverUnderOdds pinnOverUnderOdds = (OverUnderOdds) pinnOdds;
 			for (Odds i : matchOdds) {
@@ -2258,9 +2259,9 @@ public class Scraper {
 				if (m.underOdds > pinnOverUnderOdds.underOdds)
 					System.out.println(i.bookmaker + " U " + m.line + " at " + m.underOdds + " true: "
 							+ Utils.format(trueOverUnderOdds.underOdds) + " "
-							+ Utils.format(100 * m.underOdds / trueOverUnderOdds.underOdds - 100) + "%");*/
+							+ Utils.format(100 * m.underOdds / trueOverUnderOdds.underOdds - 100) + "%");
 			}
-		}
+		}*/
 
 	}
 
@@ -2311,7 +2312,9 @@ public class Scraper {
 				fullResult = new Result(0, 3);
 				htResult = new Result(0, 3);
 			}*/
-			if (resString.contains("(") && resString.contains(")")) {
+			
+			ScraperControls.controlIfElse(resString, fullResult, htResult);
+			/**if (resString.contains("(") && resString.contains(")")) {
 				String full = resString.split(" ")[2];
 				String half = resString.split(" ")[3].substring(1, 4);
 
@@ -2320,7 +2323,7 @@ public class Scraper {
 			} else {
 				fullResult = new Result(-1, -1);
 				htResult = new Result(-1, -1);
-			}
+			}*/
 
 		} catch (Exception e) {
 			System.out.println("next match");

@@ -955,6 +955,16 @@ class ScraperControls {
 					+ Utils.format(100 * m.awayOdds / trueAsianOdds.awayOdds - 100) + "%");
 	}
 	
+	static void controlIfHomeAwayOdds(ArrayList<Odds> matchOdds, Odds trueOdds, Odds pinnOdds){
+		if (matchOdds.get(0) instanceof AsianOdds) {
+			AsianOdds trueAsianOdds = (AsianOdds) trueOdds;
+			AsianOdds pinnAsianOdds = (AsianOdds) pinnOdds;
+			for (Odds i : matchOdds) {
+				controlHomeAwayOdds(i, pinnAsianOdds, trueAsianOdds);
+			}
+		}
+	}
+	
 	static void controlOverUnderOdds(Odds i, OverUnderOdds pinnOverUnderOdds, OverUnderOdds trueOverUnderOdds){
 		OverUnderOdds m = (OverUnderOdds) i;
 		if (m.overOdds > pinnOverUnderOdds.overOdds)
@@ -967,6 +977,16 @@ class ScraperControls {
 					+ Utils.format(100 * m.underOdds / trueOverUnderOdds.underOdds - 100) + "%");
 	}
 	
+	static void controlIfOverUnderOdds(ArrayList<Odds> matchOdds, Odds trueOdds, Odds pinnOdds){
+		if (matchOdds.get(0) instanceof OverUnderOdds) {
+			OverUnderOdds trueOverUnderOdds = (OverUnderOdds) trueOdds;
+			OverUnderOdds pinnOverUnderOdds = (OverUnderOdds) pinnOdds;
+			for (Odds i : matchOdds) {
+				controlOverUnderOdds(i, pinnOverUnderOdds, trueOverUnderOdds);	
+			}
+		}
+	}
+
 	static void controlDiv25(List<WebElement> divs, WebElement div25){
 		for (WebElement div : divs) {
 			if (div.getText().contains("+2.5")) {
@@ -977,5 +997,18 @@ class ScraperControls {
 		}
 	}
 	
+	static void controlIfElse(String resString, Result fullResult, Result htResult){
+		if (resString.contains("(") && resString.contains(")")) {
+			String full = resString.split(" ")[2];
+			String half = resString.split(" ")[3].substring(1, 4);
+	
+			fullResult = new Result(Integer.parseInt(full.split(":")[0]), Integer.parseInt(full.split(":")[1]));
+			htResult = new Result(Integer.parseInt(half.split(":")[0]), Integer.parseInt(half.split(":")[1]));
+		} else {
+			fullResult = new Result(-1, -1);
+			htResult = new Result(-1, -1);
+		}
+	}
 
+	
 }//di classe
