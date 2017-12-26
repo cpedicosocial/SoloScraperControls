@@ -428,7 +428,7 @@ class ScraperControls {
 		}
 	}
 	
-	static void controlOUTable(WebElement div25, WebElement row, List<WebElement> rows, float overOdds, float underOdds, float overOdds365, float underOdds365){
+	static void controlOUTable(WebElement div25, float overOdds, float underOdds, float overOdds365, float underOdds365){
 		if (div25 != null) {
 		WebElement OUTable = div25.findElement(By.xpath("//table"));
 
@@ -1079,6 +1079,35 @@ class ScraperControls {
 		} else {
 			fullResult = new Result(-1, -1);
 			htResult = new Result(-1, -1);
+		}
+	}
+	
+	static void controlTryForIfGetOddsFixture(List<WebElement> divsAsian, float min, WebElement opt, String home, String away, WebDriver driver) {
+		try {
+			for (WebElement div : divsAsian) {
+				ScraperControls.controlSplit(div, min, opt);
+			}
+		} catch (Exception e) {
+			System.out.println("asian problem" + home + " " + away);
+		}
+	
+		float line = -1f, asianHome = -1f, asianAway = -1f;
+	
+		if (opt != null) {
+			try {
+				Actions actions = new Actions(driver);
+				actions.moveToElement(opt).click().perform();
+			} catch (Exception e) {
+				System.out.println("click error ah line ==");
+				System.out.println("Something was wrong");
+			}
+	
+			WebElement AHTable = opt.findElement(By.xpath("//table"));
+	
+			// find the row
+			List<WebElement> rowsAsian = AHTable.findElements(By.xpath("//tr"));
+	
+			ScraperControls.controlRow(rowsAsian, line, asianHome, asianAway);
 		}
 	}
 

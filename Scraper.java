@@ -1239,18 +1239,7 @@ public class Scraper {
 	public static ExtendedFixture getOddsFixture(WebDriver driver, String i, String competition,
 			boolean liveMatchesFlag, OnlyTodayMatches onlyToday)
 					throws ParseException, InterruptedException, IOException {
-		// System.out.println(i);
-		// int count = 0;
-		// int maxTries = 10;
-		// while (true) {
-		// try {
 		driver.navigate().to(i);
-		// break;
-		// } catch (Exception e) {
-		// if (++count == maxTries)
-		// throw e;
-		// }
-		// }
 
 		String title = driver.findElement(By.xpath("//*[@id='col-content']/h1")).getText();
 		String home = title.split(" - ")[0].trim();
@@ -1262,28 +1251,9 @@ public class Scraper {
 		Date date = FORMATFULL.parse(dateString);
 		System.out.println(date);
 
-		// skipping to update matches that are played later than today (for
-		// performance in nextMatches())
+		// skipping to update matches that are played later than today (for performance in nextMatches())
 		if (onlyToday.equals(OnlyTodayMatches.TRUE) && !Utils.isToday(date))
 			return null;
-
-		// --------------------------
-		// Document fixture = Jsoup.connect(i).get();
-		//
-		//
-		// Element dt = fixture.select("p[class^=date]").first();
-		//
-		// String millisString = dt.outerHtml().split("
-		// ")[3].split("-")[0].substring(1);
-		//
-		// long timeInMillis = Long.parseLong(millisString) * 1000;
-		//
-		// Calendar cal = Calendar.getInstance();
-		// cal.setTimeInMillis(timeInMillis);
-		// Date date2 = cal.getTime();
-		// System.out.println(date2);
-		// date=date2;
-		// -----------------------------------------------------------
 
 		// Resultss
 		Result fullResult = new Result(-1, -1);
@@ -1325,12 +1295,11 @@ public class Scraper {
 		} catch (Exception e) {
 			System.out.println("next match");
 		}
-		// System.out.println(fullResult + " " + htResult);
 
 		WebElement table = driver.findElement(By.xpath("//div[@id='odds-data-table']"));
 		// find the row
 		List<WebElement> customer = table.findElements(By.xpath("//div[1]/table/tbody/tr"));
-		 pinnIndex = -2;
+		int pinnIndex = -2;
 		int Index365 = -2;
 
 		for (WebElement row : customer) {
@@ -1353,10 +1322,6 @@ public class Scraper {
 				.parseFloat(table.findElement(By.xpath("//div[1]/table/tbody/tr[" + pinnIndex + "]/td[3]")).getText());
 		float awayOdds = Float
 				.parseFloat(table.findElement(By.xpath("//div[1]/table/tbody/tr[" + pinnIndex + "]/td[4]")).getText());
-
-		// System.out.println(homeOdds);
-		// System.out.println(drawOdds);
-		// System.out.println(awayOdds);
 
 		// Over and under odds
 		float overOdds = -1f, underOdds = -1f;
@@ -1395,7 +1360,7 @@ public class Scraper {
 			//e.printStackTrace();
 		}
 
-		ScraperControls.controlOUTable(div25, row, rows, overOdds, underOdds, overOdds365, underOdds365);
+		ScraperControls.controlOUTable(div25, overOdds, underOdds, overOdds365, underOdds365);
 		/**if (div25 != null) {
 			WebElement OUTable = div25.findElement(By.xpath("//table"));
 
@@ -1448,18 +1413,12 @@ public class Scraper {
 		WebElement opt = null;
 		float min = 100f;
 		List<WebElement> divsAsian = driver.findElements(By.xpath("//*[@id='odds-data-table']/div"));
+		
+		ScraperControls.controlTryForIfGetOddsFixture(divsAsian, min, opt, home, away, opt, driver);
+		/**
 		try {
 			for (WebElement div : divsAsian) {
 				ScraperControls.controlSplit(div, min, opt);
-				/**String text = div.getText();
-				if (text.split("\n").length > 3) {
-					float diff = Math.abs(Float.parseFloat(text.split("\n")[2].trim())
-							- Float.parseFloat(text.split("\n")[3].trim()));
-				}
-				if (text.split("\n").length > 3 && diff < min) {
-					min = diff;
-					opt = div;
-				}*/
 			}
 		} catch (Exception e) {
 			System.out.println("asian problem" + home + " " + away);
@@ -1474,7 +1433,6 @@ public class Scraper {
 			} catch (Exception e) {
 				System.out.println("click error ah line ==");
 				System.out.println("Something was wrong");
-				//e.printStackTrace();
 			}
 
 			WebElement AHTable = opt.findElement(By.xpath("//table"));
@@ -1483,16 +1441,7 @@ public class Scraper {
 			List<WebElement> rowsAsian = AHTable.findElements(By.xpath("//tr"));
 
 			ScraperControls.controlRow(rowsAsian, line, asianHome, asianAway);
-			/**for (WebElement row : rowsAsian) {
-				if (row.getText().contains("Pinnacle")) {
-					String textOdds = row.getText();
-					line = Float.parseFloat(textOdds.split("\n")[1].trim());
-					asianHome = Float.parseFloat(textOdds.split("\n")[2].trim());
-					asianAway = Float.parseFloat(textOdds.split("\n")[3].trim());
-					break;
-				}
-			}*/
-		}
+		}*/
 
 		ExtendedFixture ef = new ExtendedFixture(date, home, away, fullResult, competition).withHTResult(htResult)
 				.with1X2Odds(homeOdds, drawOdds, awayOdds).withAsian(line, asianHome, asianAway)
