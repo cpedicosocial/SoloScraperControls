@@ -428,6 +428,18 @@ class ScraperControls {
 		}
 	}
 	
+	static void controlOUTable(WebElement div25, WebElement row, List<WebElement> rows, float overOdds, float underOdds, float overOdds365, float underOdds365){
+		if (div25 != null) {
+		WebElement OUTable = div25.findElement(By.xpath("//table"));
+
+		// find the row
+		List<WebElement> rows = OUTable.findElements(By.xpath("//tr"));
+
+		controlForOdds(row, rows, overOdds, underOdds, overOdds365, underOdds365);
+		controlFloat(overOdds, overOdds365, underOdds, underOdds365);
+		}
+	}
+	
 	static void controlContainsAh(List<WebElement> tabs, String s){
 		for (WebElement t : tabs) {
 			if (t.getText().contains(s)) {

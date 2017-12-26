@@ -1395,7 +1395,8 @@ public class Scraper {
 			//e.printStackTrace();
 		}
 
-		if (div25 != null) {
+		ScraperControls.controlOUTable(div25, row, rows, overOdds, underOdds, overOdds365, underOdds365);
+		/**if (div25 != null) {
 			WebElement OUTable = div25.findElement(By.xpath("//table"));
 
 			// find the row
@@ -1420,15 +1421,15 @@ public class Scraper {
 						// nothing
 					}
 				}
-			}*/
+			}
 
 			ScraperControls.controlFloat(overOdds, overOdds365, underOdds, underOdds365);
 			/**if (Float.compare(overOdds, -1f)==0) {
 				overOdds = overOdds365;
 				underOdds = underOdds365;
-			}*/
+			}
 
-		}
+		}*/
 		
 		// Asian handicap
 		try {
