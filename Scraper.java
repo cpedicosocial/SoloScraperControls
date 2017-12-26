@@ -1265,33 +1265,10 @@ public class Scraper {
 				}
 				
 				ScraperControls.controlOneResElement(driver, liveMatchesFlag);
-				/**if (resElement != null && (resString.contains("penalties") || resString.contains("ET") || resString.contains("Postponed"))) {
-					return null;
-				}
-				if (resElement != null && ((!liveMatchesFlag && resString.contains("already started")) || resString.contains("Abandoned"))) {
-					return null;
-				}*/
 				
 				ScraperControls.controlTwoResElement(resElement, resString, fullResult, htResult);
-				/**if (resElement != null && (resString.contains("awarded") && resString.contains(home))) {
-					fullResult = new Result(3, 0);
-					htResult = new Result(3, 0);
-				}
-				if (resElement != null && (resString.contains("awarded") && resString.contains(away))) {
-					fullResult = new Result(0, 3);
-					htResult = new Result(0, 3);
-				}*/
 				
 				ScraperControls.controlIfElseNotNull(resElement, resString, fullResult, htResult);
-				/**if (resElement != null && (resString.contains("(") && resString.contains(")"))) {
-					String full = resString.split(" ")[2];
-					String half = resString.split(" ")[3].substring(1, 4);
-					fullResult = new Result(Integer.parseInt(full.split(":")[0]), Integer.parseInt(full.split(":")[1]));
-					htResult = new Result(Integer.parseInt(half.split(":")[0]), Integer.parseInt(half.split(":")[1]));
-				} else {
-					fullResult = new Result(-1, -1);
-					htResult = new Result(-1, -1);
-				}*/
 		} catch (Exception e) {
 			System.out.println("next match");
 		}
@@ -1302,19 +1279,17 @@ public class Scraper {
 		int pinnIndex = -2;
 		int Index365 = -2;
 
+		ScraperControls.controlForIfPinnIndex(customer, pinnIndex, Index365);
+		/**
 		for (WebElement row : customer) {
 			ScraperControls.controlPinnIndex(row, customer, pinnIndex);
-			/**if (row.getText().contains("Pinnacle"))
-				pinnIndex = customer.indexOf(row) + 1;
-			if (row.getText().contains("bet365"))
-				pinnIndex = customer.indexOf(row) + 1;*/
 		}
 		
 		if (pinnIndex < 0) {
 			System.out.println("Could not find pinnacle");
 			pinnIndex = Index365;
 			pinnIndex = 1;
-		}
+		}*/
 
 		float homeOdds = Float
 				.parseFloat(table.findElement(By.xpath("//div[1]/table/tbody/tr[" + pinnIndex + "]/td[2]")).getText());
@@ -1322,19 +1297,13 @@ public class Scraper {
 				.parseFloat(table.findElement(By.xpath("//div[1]/table/tbody/tr[" + pinnIndex + "]/td[3]")).getText());
 		float awayOdds = Float
 				.parseFloat(table.findElement(By.xpath("//div[1]/table/tbody/tr[" + pinnIndex + "]/td[4]")).getText());
-
+		
 		// Over and under odds
 		float overOdds = -1f, underOdds = -1f;
 		float overOdds365 = -1f, underOdds365 = -1f;
 		List<WebElement> tabs = driver.findElements(By.xpath("//*[@id='bettype-tabs']/ul/li"));
 		try {
 			ScraperControls.controlClick(tabs);//DA VALUTARE
-			/**for (WebElement t : tabs) {
-				if (t.getText().contains("O/U")) {
-					t.click();
-					break;
-				}
-			}*/
 		} catch (Exception e) {
 			System.out.println("click error o/u");
 			System.out.println("Something was wrong");
@@ -1345,66 +1314,16 @@ public class Scraper {
 		List<WebElement> divs = driver.findElements(By.xpath("//*[@id='odds-data-table']/div"));
 		try {
 			ScraperControls.controlDiv(divs, div25, driver);//DA VALUTARE
-			/**for (WebElement div : divs) {
-				if (div.getText().contains("+2.5")) {
-					div25 = div;
-					JavascriptExecutor jse = (JavascriptExecutor) driver;
-					jse.executeScript("window.scrollBy(0,250)", "");
-					div.click();
-					break;
-				}
-			}*/
 		} catch (Exception e) {
 			System.out.println("click error o/u 2.5");
 			System.out.println("Something was wrong");
-			//e.printStackTrace();
 		}
 
 		ScraperControls.controlOUTable(div25, overOdds, underOdds, overOdds365, underOdds365);
-		/**if (div25 != null) {
-			WebElement OUTable = div25.findElement(By.xpath("//table"));
-
-			// find the row
-			List<WebElement> rows = OUTable.findElements(By.xpath("//tr"));
-
-			ScraperControls.controlForOdds(row, rows, overOdds, underOdds, overOdds365, underOdds365);
-			/**for (WebElement row : rows) {
-				ScraperControls.controlOdds(row, overOdds, underOdds, overOdds365, underOdds365);
-				/**if (row.getText().contains("Pinnacle")) {
-					String textOdds = row.getText();
-					overOdds = Float.parseFloat(textOdds.split("\n")[2].trim());
-					underOdds = Float.parseFloat(textOdds.split("\n")[3].trim());
-					break;
-				}
-
-				if (row.getText().contains("bet365")) {
-					String textOdds = row.getText();
-					try {
-						overOdds365 = Float.parseFloat(textOdds.split("\n")[2].trim());
-						underOdds365 = Float.parseFloat(textOdds.split("\n")[3].trim());
-					} catch (Exception e) {
-						// nothing
-					}
-				}
-			}
-
-			ScraperControls.controlFloat(overOdds, overOdds365, underOdds, underOdds365);
-			/**if (Float.compare(overOdds, -1f)==0) {
-				overOdds = overOdds365;
-				underOdds = underOdds365;
-			}
-
-		}*/
 		
 		// Asian handicap
 		try {
 			ScraperControls.controlContainsAh(tabs, "AH");//DA VALUTARE
-			/**for (WebElement t : tabs) {
-				if (t.getText().contains("AH")) {
-					t.click();
-					break;
-				}
-			}*/
 		} catch (Exception e) {
 			System.out.println("click error AH");
 		}
@@ -1415,33 +1334,6 @@ public class Scraper {
 		List<WebElement> divsAsian = driver.findElements(By.xpath("//*[@id='odds-data-table']/div"));
 		
 		ScraperControls.controlTryForIfGetOddsFixture(divsAsian, min, opt, home, away, opt, driver);
-		/**
-		try {
-			for (WebElement div : divsAsian) {
-				ScraperControls.controlSplit(div, min, opt);
-			}
-		} catch (Exception e) {
-			System.out.println("asian problem" + home + " " + away);
-		}
-
-		float line = -1f, asianHome = -1f, asianAway = -1f;
-
-		if (opt != null) {
-			try {
-				Actions actions = new Actions(driver);
-				actions.moveToElement(opt).click().perform();
-			} catch (Exception e) {
-				System.out.println("click error ah line ==");
-				System.out.println("Something was wrong");
-			}
-
-			WebElement AHTable = opt.findElement(By.xpath("//table"));
-
-			// find the row
-			List<WebElement> rowsAsian = AHTable.findElements(By.xpath("//tr"));
-
-			ScraperControls.controlRow(rowsAsian, line, asianHome, asianAway);
-		}*/
 
 		ExtendedFixture ef = new ExtendedFixture(date, home, away, fullResult, competition).withHTResult(htResult)
 				.with1X2Odds(homeOdds, drawOdds, awayOdds).withAsian(line, asianHome, asianAway)

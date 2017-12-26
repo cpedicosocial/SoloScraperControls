@@ -1110,6 +1110,19 @@ class ScraperControls {
 			ScraperControls.controlRow(rowsAsian, line, asianHome, asianAway);
 		}
 	}
+	
+	static void controlForIfPinnIndex(List<WebElement> customer, int pinnIndex, int Index365) {
+		for (WebElement row : customer) {
+			ScraperControls.controlPinnIndex(row, customer, pinnIndex);
+		}
+		
+		if (pinnIndex < 0) {
+			System.out.println("Could not find pinnacle");
+			pinnIndex = Index365;
+			pinnIndex = 1;
+		}
+	}
+	
 
 	
 }//di classe
