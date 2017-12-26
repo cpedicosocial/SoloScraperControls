@@ -2227,11 +2227,13 @@ public class Scraper {
 
 		}
 
+		//fare i metodi per i DUE IF SUCCESSIVI?
 		if (matchOdds.get(0) instanceof AsianOdds) {
 			AsianOdds trueAsianOdds = (AsianOdds) trueOdds;
 			AsianOdds pinnAsianOdds = (AsianOdds) pinnOdds;
 			for (Odds i : matchOdds) {
-				AsianOdds m = (AsianOdds) i;
+				ScraperControls.controlHomeAwayOdds(i, pinnAsianOdds, trueAsianOdds);
+				/**AsianOdds m = (AsianOdds) i;
 				if (m.homeOdds > pinnAsianOdds.homeOdds)
 					System.out.println(i.bookmaker + " H " + m.line + " at " + m.homeOdds + " true: "
 							+ Utils.format(trueAsianOdds.homeOdds) + " "
@@ -2239,7 +2241,7 @@ public class Scraper {
 				if (m.awayOdds > pinnAsianOdds.awayOdds)
 					System.out.println(i.bookmaker + " A " + m.line + " at " + m.awayOdds + " true: "
 							+ Utils.format(trueAsianOdds.awayOdds) + " "
-							+ Utils.format(100 * m.awayOdds / trueAsianOdds.awayOdds - 100) + "%");
+							+ Utils.format(100 * m.awayOdds / trueAsianOdds.awayOdds - 100) + "%");*/
 			}
 		}
 
@@ -2247,7 +2249,8 @@ public class Scraper {
 			OverUnderOdds trueOverUnderOdds = (OverUnderOdds) trueOdds;
 			OverUnderOdds pinnOverUnderOdds = (OverUnderOdds) pinnOdds;
 			for (Odds i : matchOdds) {
-				OverUnderOdds m = (OverUnderOdds) i;
+				ScraperControls.controlOverUnderOdds(i, pinnOverUnderOdds, trueOverUnderOdds);
+				/**OverUnderOdds m = (OverUnderOdds) i;
 				if (m.overOdds > pinnOverUnderOdds.overOdds)
 					System.out.println(i.bookmaker + " O " + m.line + " at " + m.overOdds + " true: "
 							+ Utils.format(trueOverUnderOdds.overOdds) + " "
@@ -2255,7 +2258,7 @@ public class Scraper {
 				if (m.underOdds > pinnOverUnderOdds.underOdds)
 					System.out.println(i.bookmaker + " U " + m.line + " at " + m.underOdds + " true: "
 							+ Utils.format(trueOverUnderOdds.underOdds) + " "
-							+ Utils.format(100 * m.underOdds / trueOverUnderOdds.underOdds - 100) + "%");
+							+ Utils.format(100 * m.underOdds / trueOverUnderOdds.underOdds - 100) + "%");*/
 			}
 		}
 
@@ -2294,7 +2297,10 @@ public class Scraper {
 			System.out.println(resultJsoup.text());
 
 			String resString = resultJsoup.text();
-			if (resString.contains("penalties") || resString.contains("ET")) {
+			
+			WebElement resElement = divsGoals.get(0); //aggiunto da tonio e mela, messo solo per usare metodo esistente, va bene qualsiasi valore != null
+			ScraperControls.controlResElement(resElement, resString, fullResult, htResult, away, home);
+			/**if (resString.contains("penalties") || resString.contains("ET")) {
 				return null;
 			}
 			if (resString.contains("awarded") && resString.contains(home)) {
@@ -2304,7 +2310,7 @@ public class Scraper {
 			if (resString.contains("awarded") && resString.contains(away)) {
 				fullResult = new Result(0, 3);
 				htResult = new Result(0, 3);
-			}
+			}*/
 			if (resString.contains("(") && resString.contains(")")) {
 				String full = resString.split(" ")[2];
 				String half = resString.split(" ")[3].substring(1, 4);
@@ -2338,18 +2344,19 @@ public class Scraper {
 		int Index365 = -2;
 
 		for (WebElement row : customer) {
-			if (row.getText().contains("Pinnacle"))
+			ScraperControls.controlPinnIndex(row, customer, pinnIndex);
+			/**if (row.getText().contains("Pinnacle"))
 				pinnIndex = customer.indexOf(row) + 1;
 			if (row.getText().contains("bet365"))
-				pinnIndex = customer.indexOf(row) + 1;
+				pinnIndex = customer.indexOf(row) + 1;*/
 		}
+		
 		if (pinnIndex < 0) {
 			System.out.println("Could not find pinnacle");
 			pinnIndex = Index365;
-		}
-		if (pinnIndex < 0)
 			pinnIndex = 2;
-
+		}
+		
 		float homeOdds = Float
 				.parseFloat(table.findElement(By.xpath("//div[1]/table/tbody/tr[" + pinnIndex + "]/td[2]")).getText());
 		float drawOdds = Float
@@ -2357,53 +2364,50 @@ public class Scraper {
 		float awayOdds = Float
 				.parseFloat(table.findElement(By.xpath("//div[1]/table/tbody/tr[" + pinnIndex + "]/td[4]")).getText());
 
-		// System.out.println(homeOdds);
-		// System.out.println(drawOdds);
-		// System.out.println(awayOdds);
-
 		// Over and under odds
 		float overOdds = -1f, underOdds = -1f;
 		List<WebElement> tabs = driver.findElements(By.xpath("//*[@id='bettype-tabs']/ul/li"));
-		for (WebElement t : tabs) {
+		ScraperControls.controlContainsAh(tabs, "O/U");
+		/**for (WebElement t : tabs) {
 			if (t.getText().contains("O/U")) {
 				t.click();
 				break;
 			}
-		}
+		}*/
 
 		WebElement div25 = null;
 		List<WebElement> divs = driver.findElements(By.xpath("//*[@id='odds-data-table']/div"));
-		for (WebElement div : divs) {
+		ScraperControls.controlDiv25(divs, div25);
+		/**for (WebElement div : divs) {
 			if (div.getText().contains("+2.5")) {
-				// System.out.println(div.getText());
 				div25 = div;
 				div.click();
 				break;
 			}
-		}
+		}*/
 
 		WebElement OUTable = div25.findElement(By.xpath("//table"));
 
 		// find the row
 		List<WebElement> rows = OUTable.findElements(By.xpath("//tr"));
 
-		for (WebElement row : rows) {
+		controlfirstOdds(row, overOdds, underOdds);
+		/**for (WebElement row : rows) {
 			if (row.getText().contains("Pinnacle")) {
 				String textOdds = row.getText();
 				overOdds = Float.parseFloat(textOdds.split("\n")[2].trim());
 				underOdds = Float.parseFloat(textOdds.split("\n")[3].trim());
 			}
-		}
-
-		// System.out.println("over: " + overOdds + " " + underOdds);
+		}*/
 
 		// Asian handicap
-		for (WebElement t : tabs) {
+		ScraperControls.controlContainsAh(tabs, "AH");
+		/**for (WebElement t : tabs) {
 			if (t.getText().contains("AH")) {
 				t.click();
 				break;
 			}
-		}
+		}*/
 
 		// Asian with closest line
 		WebElement opt = null;
@@ -2412,24 +2416,21 @@ public class Scraper {
 		try {
 			for (WebElement div : divsAsian) {
 				String text = div.getText();
-				if (text.split("\n").length > 3) {
+				ScraperControls.controlText(text, min, opt, div);
+				/**if (text.split("\n").length > 3) {
 					float diff = Math.abs(Float.parseFloat(text.split("\n")[2].trim())
 							- Float.parseFloat(text.split("\n")[3].trim()));
 				}
 				if (text.split("\n").length > 3 && diff < min) {
 					min = diff;
 					opt = div;
-				}
+				}*/
 			}
 		} catch (Exception e) {
 			System.out.println("asian problem" + home + " " + away);
 		}
 
 		float line = -1f, asianHome = -1f, asianAway = -1f;
-		// if (home.equals("Sport Recife") && away.equals("Corinthians")){
-		// System.out.println(min);
-		// System.out.println(opt.getText());
-		// }
 
 		if (opt != null) {
 			opt.click();
@@ -2439,17 +2440,15 @@ public class Scraper {
 			// find the row
 			List<WebElement> rowsAsian = AHTable.findElements(By.xpath("//tr"));
 
-			for (WebElement row : rowsAsian) {
+			ScraperControls.controlRow(rowsAsian, line, asianHome, asianAway);
+			/**for (WebElement row : rowsAsian) {
 				if (row.getText().contains("Pinnacle")) {
 					String textOdds = row.getText();
 					line = Float.parseFloat(textOdds.split("\n")[1].trim());
 					asianHome = Float.parseFloat(textOdds.split("\n")[2].trim());
 					asianAway = Float.parseFloat(textOdds.split("\n")[3].trim());
 				}
-			}
-
-			// System.out.println(line + " " + asianHome + " " + asianAway);
-
+			}*/
 		}
 
 		ExtendedFixture ef = new ExtendedFixture(date, home, away, fullResult, competition).withHTResult(htResult)

@@ -371,7 +371,6 @@ class ScraperControls {
 	static void controlDiv(List<WebElement> divs, WebElement div25, WebDriver driver){
 		for (WebElement div : divs) {
 			if (div.getText().contains("+2.5")) {
-				// System.out.println(div.getText());
 				div25 = div;
 				JavascriptExecutor jse = (JavascriptExecutor) driver;
 				jse.executeScript("window.scrollBy(0,250)", "");
@@ -381,14 +380,18 @@ class ScraperControls {
 		}
 	}
 	
-	static void controlOdds(WebElement row, float overOdds, float underOdds, float overOdds365, float underOdds365){
+	static void controlfirstOdds(WebElement row, float overOdds, float underOdds){
 		if (row.getText().contains("Pinnacle")) {
 			String textOdds = row.getText();
 			overOdds = Float.parseFloat(textOdds.split("\n")[2].trim());
 			underOdds = Float.parseFloat(textOdds.split("\n")[3].trim());
 			break;
 		}
+	}
 	
+	static void controlOdds(WebElement row, float overOdds, float underOdds, float overOdds365, float underOdds365){
+		controlfirstOdds(row, overOdds, underOdds);
+		
 		if (row.getText().contains("bet365")) {
 			String textOdds = row.getText();
 			try {
@@ -400,9 +403,9 @@ class ScraperControls {
 		}
 	}
 	
-	static void controlContainsAh(List<WebElement> tabs){
+	static void controlContainsAh(List<WebElement> tabs, String s){
 		for (WebElement t : tabs) {
-			if (t.getText().contains("AH")) {
+			if (t.getText().contains(s)) {
 				t.click();
 				break;
 			}
@@ -936,6 +939,40 @@ class ScraperControls {
 				//gli if sono uguali a quelli di sopra, tranne per le prime 2 variabili
 			} catch (Exception e) {
 				System.out.println("parse");
+			}
+		}
+	}
+	
+	static void controlHomeAwayOdds(Odds i, AsianOdds pinnAsianOdds, AsianOdds trueAsianOdds){
+		AsianOdds m = (AsianOdds) i;
+		if (m.homeOdds > pinnAsianOdds.homeOdds)
+			System.out.println(i.bookmaker + " H " + m.line + " at " + m.homeOdds + " true: "
+					+ Utils.format(trueAsianOdds.homeOdds) + " "
+					+ Utils.format(100 * m.homeOdds / trueAsianOdds.homeOdds - 100) + "%");
+		if (m.awayOdds > pinnAsianOdds.awayOdds)
+			System.out.println(i.bookmaker + " A " + m.line + " at " + m.awayOdds + " true: "
+					+ Utils.format(trueAsianOdds.awayOdds) + " "
+					+ Utils.format(100 * m.awayOdds / trueAsianOdds.awayOdds - 100) + "%");
+	}
+	
+	static void controlOverUnderOdds(Odds i, OverUnderOdds pinnOverUnderOdds, OverUnderOdds trueOverUnderOdds){
+		OverUnderOdds m = (OverUnderOdds) i;
+		if (m.overOdds > pinnOverUnderOdds.overOdds)
+			System.out.println(i.bookmaker + " O " + m.line + " at " + m.overOdds + " true: "
+					+ Utils.format(trueOverUnderOdds.overOdds) + " "
+					+ Utils.format(100 * m.overOdds / trueOverUnderOdds.overOdds - 100) + "%");
+		if (m.underOdds > pinnOverUnderOdds.underOdds)
+			System.out.println(i.bookmaker + " U " + m.line + " at " + m.underOdds + " true: "
+					+ Utils.format(trueOverUnderOdds.underOdds) + " "
+					+ Utils.format(100 * m.underOdds / trueOverUnderOdds.underOdds - 100) + "%");
+	}
+	
+	static void controlDiv25(List<WebElement> divs, WebElement div25){
+		for (WebElement div : divs) {
+			if (div.getText().contains("+2.5")) {
+				div25 = div;
+				div.click();
+				break;
 			}
 		}
 	}
