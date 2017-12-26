@@ -9,11 +9,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 class ScraperControls {
 
@@ -1123,6 +1126,113 @@ class ScraperControls {
 		}
 	}
 	
+	private static void fullMatchOddsOverPinnacle(WebDriver driver) {
+		WebElement table = driver.findElement(By.xpath("//div[@id='odds-data-table']"));
+		List<WebElement> rows = table.findElements(By.xpath("//div[1]/table/tbody/tr"));
+		Odds pinnOdds = null;
 
+		ArrayList<Odds> matchOdds = createArrayListOdds();
+		for (WebElement row : rows) {
+			List<WebElement> columns = row.findElements(By.xpath("td"));
+			if (columns.size() < 4)
+				continue;
+			String bookmaker = columns.get(0).getText().trim();
+			if (Arrays.asList(MinMaxOdds.FAKEBOOKS).contains(bookmaker))
+				continue;
+			float homeOdds = Float.parseFloat(columns.get(1).getText().trim());
+			float drawOdds = Float.parseFloat(columns.get(2).getText().trim());
+			float awayOdds = Float.parseFloat(columns.get(3).getText().trim());
+
+			Odds modds = new MatchOdds(bookmaker, new Date(), homeOdds, drawOdds, awayOdds);
+			matchOdds.add(modds);
+
+			if (bookmaker.equals("Pinnacle"))
+				pinnOdds = modds;
+
+			// System.out.println(modds);
+		}
+
+		checkValueOverPinnacleOdds(matchOdds, pinnOdds);
+
+	}
+
+	private static ArrayList<Odds> createArrayListOdds(){
+		return new ArrayList<Odds>();
+	}
+	
+	private static void checkValueOverPinnacleOdds(ArrayList<Odds> matchOdds, Odds pinnOdds) {
+		if (matchOdds.isEmpty() || pinnOdds == null)
+			return;
+
+		Odds trueOdds = pinnOdds.getTrueOddsMarginal();
+
+		if (matchOdds.get(0) instanceof MatchOdds) {
+			MatchOdds trueMatchOdds = (MatchOdds) trueOdds;
+			MatchOdds pinnMatchOdds = (MatchOdds) pinnOdds;
+			List<MatchOdds> casted = matchOdds.stream().map(MatchOdds.class::cast).collect(Collectors.toList());
+
+			casted.sort(Comparator.comparing(MatchOdds::getHomeOdds).reversed());
+			casted.stream().filter(m -> m.homeOdds > pinnMatchOdds.homeOdds)
+					.forEach(i -> System.out.println(
+							i.bookmaker + " 1 at " + i.homeOdds + " true: " + Utils.format(trueMatchOdds.homeOdds) + " "
+									+ Utils.format(100 * i.homeOdds / trueMatchOdds.homeOdds - 100) + "%"));
+			casted.sort(Comparator.comparing(MatchOdds::getDrawOdds).reversed());
+			casted.stream().filter(m -> m.drawOdds > pinnMatchOdds.drawOdds)
+					.forEach(i -> System.out.println(
+							i.bookmaker + " X at " + i.drawOdds + " true: " + Utils.format(trueMatchOdds.drawOdds) + " "
+									+ Utils.format(100 * i.drawOdds / trueMatchOdds.drawOdds - 100) + "%"));
+			casted.sort(Comparator.comparing(MatchOdds::getAwayOdds).reversed());
+			casted.stream().filter(m -> m.awayOdds > pinnMatchOdds.awayOdds)
+					.forEach(i -> System.out.println(
+							i.bookmaker + " 2 at " + i.awayOdds + " true: " + Utils.format(trueMatchOdds.awayOdds) + " "
+									+ Utils.format(100 * i.awayOdds / trueMatchOdds.awayOdds - 100) + "%"));
+
+		}
+
+		controlIfHomeAwayOdds(matchOdds, trueOdds, pinnOdds);
+
+		controlIfOverUnderOdds(matchOdds, trueOdds, pinnOdds);
+
+	}
+	
+	static void controlTryForAsian(int lower, int higher, List<WebElement> divsAsian, WebDriver driver) {
+		try {
+			for (int j = lower; j <= higher; j++) {
+				WebElement currentDiv = divsAsian.get(j);
+				if (currentDiv == null || currentDiv.getText().split("\n").length < 3)
+					continue;
+	
+				// currentDiv.click();
+				Actions actions = new Actions(driver);
+				actions.moveToElement(currentDiv).click().perform();
+	
+				WebElement AHTable = currentDiv.findElement(By.xpath("//table"));
+	
+				List<WebElement> rowsGoals = AHTable.findElements(By.xpath("//tbody/tr"));
+				float line = -1f, home = -1f, away = -1f;
+	
+				Odds pinnOdds = null;
+	
+				ArrayList<Odds> matchOdds = createArrayListOdds();
+				controlRowHomeUnder(rowsGoals, line, home, away, matchOdds, pinnOdds);
+	
+				checkValueOverPinnacleOdds(matchOdds, pinnOdds);
+	
+				List<WebElement> closeLink = currentDiv.findElements(By.className("odds-co"));
+				if (!closeLink.isEmpty()) {
+					actions.moveToElement(closeLink.get(0)).click().perform();
+				}
+	
+			}
+		} catch (Exception e) {
+			continue;
+		}
+	}
+	
+	
+	
+	
+	
+	
 	
 }//di classe

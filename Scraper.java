@@ -1403,6 +1403,7 @@ public class Scraper {
 	}
 
 	private static void asianOverPinnacle(WebDriver driver) {
+		
 		long start = System.currentTimeMillis();
 		List<WebElement> tabs = driver.findElements(By.xpath("//*[@id='bettype-tabs']/ul/li"));
 		ScraperControls.controlContainsAh(tabs, "AH");
@@ -1441,6 +1442,8 @@ public class Scraper {
 			int lower = (indexOfOptimal - 5) < 0 ? 0 : (indexOfOptimal - 5);
 			int higher = (indexOfOptimal + 5) > (divsAsian.size() - 1) ? (divsAsian.size() - 1) : (indexOfOptimal + 5);
 
+			ScraperControls.controlTryForAsian(lower, higher, divsAsian, driver);
+			/**
 			try {
 				for (int j = lower; j <= higher; j++) {
 					WebElement currentDiv = divsAsian.get(j);
@@ -1460,32 +1463,6 @@ public class Scraper {
 	
 					ArrayList<Odds> matchOdds = createArrayListOdds();
 					ScraperControls.controlRowHomeUnder(rowsGoals, line, home, away, matchOdds, pinnOdds);
-					/**for (WebElement row : rowsGoals) {
-						String rowText = row.getText();
-						if (row.getText().contains("Average"))
-							break;
-						String[] oddsArray = rowText.split("\n");
-						// System.out.println(rowText);
-						if (oddsArray.length != 5)
-							continue;
-						String bookmaker = oddsArray[0].trim();
-	
-						if (Arrays.asList(MinMaxOdds.FAKEBOOKS).contains(bookmaker) || bookmaker.isEmpty())
-							continue;
-	
-						
-						line = Float.parseFloat(oddsArray[1].trim());
-						home = Float.parseFloat(oddsArray[2].trim());
-						away = Float.parseFloat(oddsArray[3].trim());
-						
-	
-						Odds modds = new AsianOdds(bookmaker, new Date(), line, home, away);
-						matchOdds.add(modds);
-	
-						if (bookmaker.equals("Pinnacle"))
-							pinnOdds = modds;
-	
-					}*/
 	
 					checkValueOverPinnacleOdds(matchOdds, pinnOdds);
 	
@@ -1497,43 +1474,9 @@ public class Scraper {
 				}
 			} catch (Exception e) {
 				continue;
-			}
+			}*/
 		}
 		System.out.println("asian total time " + (System.currentTimeMillis() - start) / 1000d + "sec");
-	}
-
-	private static void fullMatchOddsOverPinnacle(WebDriver driver) {
-		WebElement table = driver.findElement(By.xpath("//div[@id='odds-data-table']"));
-		List<WebElement> rows = table.findElements(By.xpath("//div[1]/table/tbody/tr"));
-		Odds pinnOdds = null;
-
-		ArrayList<Odds> matchOdds = createArrayListOdds();
-		for (WebElement row : rows) {
-			List<WebElement> columns = row.findElements(By.xpath("td"));
-			if (columns.size() < 4)
-				continue;
-			String bookmaker = columns.get(0).getText().trim();
-			if (Arrays.asList(MinMaxOdds.FAKEBOOKS).contains(bookmaker))
-				continue;
-			float homeOdds = Float.parseFloat(columns.get(1).getText().trim());
-			float drawOdds = Float.parseFloat(columns.get(2).getText().trim());
-			float awayOdds = Float.parseFloat(columns.get(3).getText().trim());
-
-			Odds modds = new MatchOdds(bookmaker, new Date(), homeOdds, drawOdds, awayOdds);
-			matchOdds.add(modds);
-
-			if (bookmaker.equals("Pinnacle"))
-				pinnOdds = modds;
-
-			// System.out.println(modds);
-		}
-
-		checkValueOverPinnacleOdds(matchOdds, pinnOdds);
-
-	}
-
-	private static ArrayList<Odds> createArrayListOdds(){
-		return new ArrayList<Odds>();
 	}
 	
 	public static void overUnderOverPinnacle(WebDriver driver) {
@@ -2042,73 +1985,6 @@ public class Scraper {
 				.withOdds(overOdds, underOdds, overOdds, underOdds).withShots(-1, -1);
 
 		return ((FullFixture) ef).withAsianLines(asianLines).withGoalLines(GLS);
-
-	}
-
-	private static void checkValueOverPinnacleOdds(ArrayList<Odds> matchOdds, Odds pinnOdds) {
-		if (matchOdds.isEmpty() || pinnOdds == null)
-			return;
-
-		Odds trueOdds = pinnOdds.getTrueOddsMarginal();
-
-		if (matchOdds.get(0) instanceof MatchOdds) {
-			MatchOdds trueMatchOdds = (MatchOdds) trueOdds;
-			MatchOdds pinnMatchOdds = (MatchOdds) pinnOdds;
-			List<MatchOdds> casted = matchOdds.stream().map(MatchOdds.class::cast).collect(Collectors.toList());
-
-			casted.sort(Comparator.comparing(MatchOdds::getHomeOdds).reversed());
-			casted.stream().filter(m -> m.homeOdds > pinnMatchOdds.homeOdds)
-					.forEach(i -> System.out.println(
-							i.bookmaker + " 1 at " + i.homeOdds + " true: " + Utils.format(trueMatchOdds.homeOdds) + " "
-									+ Utils.format(100 * i.homeOdds / trueMatchOdds.homeOdds - 100) + "%"));
-			casted.sort(Comparator.comparing(MatchOdds::getDrawOdds).reversed());
-			casted.stream().filter(m -> m.drawOdds > pinnMatchOdds.drawOdds)
-					.forEach(i -> System.out.println(
-							i.bookmaker + " X at " + i.drawOdds + " true: " + Utils.format(trueMatchOdds.drawOdds) + " "
-									+ Utils.format(100 * i.drawOdds / trueMatchOdds.drawOdds - 100) + "%"));
-			casted.sort(Comparator.comparing(MatchOdds::getAwayOdds).reversed());
-			casted.stream().filter(m -> m.awayOdds > pinnMatchOdds.awayOdds)
-					.forEach(i -> System.out.println(
-							i.bookmaker + " 2 at " + i.awayOdds + " true: " + Utils.format(trueMatchOdds.awayOdds) + " "
-									+ Utils.format(100 * i.awayOdds / trueMatchOdds.awayOdds - 100) + "%"));
-
-		}
-
-		ScraperControls.controlIfHomeAwayOdds(matchOdds, trueOdds, pinnOdds);
-		/**if (matchOdds.get(0) instanceof AsianOdds) {
-			AsianOdds trueAsianOdds = (AsianOdds) trueOdds;
-			AsianOdds pinnAsianOdds = (AsianOdds) pinnOdds;
-			for (Odds i : matchOdds) {
-				ScraperControls.controlHomeAwayOdds(i, pinnAsianOdds, trueAsianOdds);
-				/**AsianOdds m = (AsianOdds) i;
-				if (m.homeOdds > pinnAsianOdds.homeOdds)
-					System.out.println(i.bookmaker + " H " + m.line + " at " + m.homeOdds + " true: "
-							+ Utils.format(trueAsianOdds.homeOdds) + " "
-							+ Utils.format(100 * m.homeOdds / trueAsianOdds.homeOdds - 100) + "%");
-				if (m.awayOdds > pinnAsianOdds.awayOdds)
-					System.out.println(i.bookmaker + " A " + m.line + " at " + m.awayOdds + " true: "
-							+ Utils.format(trueAsianOdds.awayOdds) + " "
-							+ Utils.format(100 * m.awayOdds / trueAsianOdds.awayOdds - 100) + "%");
-			}
-		}*/
-
-		ScraperControls.controlIfOverUnderOdds(matchOdds, trueOdds, pinnOdds);
-		/**if (matchOdds.get(0) instanceof OverUnderOdds) {
-			OverUnderOdds trueOverUnderOdds = (OverUnderOdds) trueOdds;
-			OverUnderOdds pinnOverUnderOdds = (OverUnderOdds) pinnOdds;
-			for (Odds i : matchOdds) {
-				ScraperControls.controlOverUnderOdds(i, pinnOverUnderOdds, trueOverUnderOdds);
-				/**OverUnderOdds m = (OverUnderOdds) i;
-				if (m.overOdds > pinnOverUnderOdds.overOdds)
-					System.out.println(i.bookmaker + " O " + m.line + " at " + m.overOdds + " true: "
-							+ Utils.format(trueOverUnderOdds.overOdds) + " "
-							+ Utils.format(100 * m.overOdds / trueOverUnderOdds.overOdds - 100) + "%");
-				if (m.underOdds > pinnOverUnderOdds.underOdds)
-					System.out.println(i.bookmaker + " U " + m.line + " at " + m.underOdds + " true: "
-							+ Utils.format(trueOverUnderOdds.underOdds) + " "
-							+ Utils.format(100 * m.underOdds / trueOverUnderOdds.underOdds - 100) + "%");
-			}
-		}*/
 
 	}
 
