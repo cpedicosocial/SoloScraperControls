@@ -1480,14 +1480,16 @@ public class Scraper {
 	}
 	
 	public static void overUnderOverPinnacle(WebDriver driver) {
+		
 		long start = System.currentTimeMillis();
 		// Over and under odds
 		List<WebElement> tabs = driver.findElements(By.xpath("//*[@id='bettype-tabs']/ul/li"));
-		for (WebElement t : tabs)
+		ScraperControls.controlContainsAh(tabs, "O/U");
+		/**for (WebElement t : tabs)
 			if (t.getText().contains("O/U")) {
 				t.click();
 				break;
-			}
+			}*/
 
 		WebElement optGoals = null;
 		float minGoals = 100f;
@@ -1517,6 +1519,8 @@ public class Scraper {
 		int higher = (indexOfOptimalGoals + 6) > (divsGoals.size() - 1) ? (divsGoals.size() - 1)
 				: (indexOfOptimalGoals + 6);
 
+		ScraperControls.controlBigForOverUnderOver(lower, higher, divsGoals, driver);
+		/**
 		for (int j = lower; j <= higher; j++) {
 			WebElement currentDiv = divsGoals.get(j);
 			if (currentDiv == null || currentDiv.getText().split("\n").length < 3)
@@ -1536,31 +1540,7 @@ public class Scraper {
 			ArrayList<Odds> matchOdds = createArrayListOdds();
 			try {
 				ScraperControls.controlRowHomeUnder(rowsGoals, line, over, under, matchOdds, pinnOdds);
-				/**for (WebElement row : rowsGoals) {
-					String rowText = row.getText();
-					if (row.getText().contains("Average"))
-						break;
-					String[] oddsArray = rowText.split("\n");
-					// System.out.println(rowText);
-					if (oddsArray.length != 5)
-						continue;
-					String bookmaker = oddsArray[0].trim();
-	
-					if (Arrays.asList(MinMaxOdds.FAKEBOOKS).contains(bookmaker) || bookmaker.isEmpty())
-						continue;
-	
-					line = Float.parseFloat(oddsArray[1].trim());
-					over = Float.parseFloat(oddsArray[2].trim());
-					under = Float.parseFloat(oddsArray[3].trim());
-					
-					Odds modds = new OverUnderOdds(bookmaker, new Date(), line, over, under);
-					matchOdds.add(modds);
-	
-					if (bookmaker.equals("Pinnacle"))
-						pinnOdds = modds;
-	
-					// System.out.println(modds);
-				}*/
+				
 			} catch (Exception e) {
 				continue;
 			}
@@ -1571,7 +1551,7 @@ public class Scraper {
 			if (!closeLink.isEmpty()) {
 				actions.moveToElement(closeLink.get(0)).click().perform();
 			}
-		}
+		}*/
 
 		System.out.println("over under total time " + (System.currentTimeMillis() - start) / 1000d + "sec");
 	}

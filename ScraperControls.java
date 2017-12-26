@@ -1228,7 +1228,40 @@ class ScraperControls {
 			continue;
 		}
 	}
+
+	static void controlBigForOverUnderOver(int lower, int higher, List<WebElement> divsGoals, WebDriver driver) {
+		for (int j = lower; j <= higher; j++) {
+			WebElement currentDiv = divsGoals.get(j);
+			if (currentDiv == null || currentDiv.getText().split("\n").length < 3)
+				continue;
 	
+			Actions actions = createAction(driver);
+			actions.moveToElement(currentDiv).click().perform();
+	
+			WebElement goalLineTable = currentDiv.findElement(By.xpath("//table"));
+	
+			// find the row
+			List<WebElement> rowsGoals = goalLineTable.findElements(By.xpath("//tbody/tr"));
+			float line = -1f, over = -1f, under = -1f;
+	
+			Odds pinnOdds = null;
+	
+			ArrayList<Odds> matchOdds = createArrayListOdds();
+			try {
+				ScraperControls.controlRowHomeUnder(rowsGoals, line, over, under, matchOdds, pinnOdds);
+				
+			} catch (Exception e) {
+				continue;
+			}
+	
+			checkValueOverPinnacleOdds(matchOdds, pinnOdds);
+	
+			List<WebElement> closeLink = currentDiv.findElements(By.className("odds-co"));
+			if (!closeLink.isEmpty()) {
+				actions.moveToElement(closeLink.get(0)).click().perform();
+			}
+		}
+	}
 	
 	
 	
