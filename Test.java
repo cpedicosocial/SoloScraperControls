@@ -760,7 +760,7 @@ public class Test {
 			optimal.put(i.getSheetName(), XlSUtils.predictionSettings(i, 2015));
 	}
 	
-	//Todo: da risolvere
+	//Todo: da risolvere??
 	public static void makePredictions() throws IOException, InterruptedException, ParseException {
 		String basePath = new File("").getAbsolutePath();
 		FileInputStream file;
@@ -813,13 +813,7 @@ public class Test {
 		} catch (Exception e) {
 			System.out.println("Something was wrong");
 		} finally {
-			if (file != null) {
-				try {
-					file.close (); // OK
-				} catch (java.io.IOException e3) {
-					System.out.println("I/O Exception");
-               }
-			}
+			controlIfOptimalsByCompetition(file);
 		}
 		
 		HSSFSheet sheet = workbook.getSheetAt(0);
@@ -831,13 +825,7 @@ public class Test {
 		} catch (Exception e) {
 			System.out.println("Something was wrong");
 		} finally {
-			if (filedata != null) {
-				try {
-					filedata.close (); // OK
-				} catch (java.io.IOException e3) {
-					System.out.println("I/O Exception");
-               }
-			}
+			controlIfOptimalsByCompetition(filedata);
 		}
 		HSSFWorkbook workbookdata = new HSSFWorkbook(filedata);
 
