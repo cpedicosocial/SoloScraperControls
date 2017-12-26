@@ -708,7 +708,6 @@ public class Test {
 		}
 	}
 	
-	//Todo: da risolvere??
 	public static void optimalsbyCompetition() throws IOException, ParseException {
 
 		HashMap<String, ArrayList<Settings>> optimals = new HashMap<>();
@@ -756,6 +755,11 @@ public class Test {
 		System.out.println("Avg profit per year using last year best setts: " + totalPeriod / 10);
 	}
 
+	public static void controlIfMakePredictions(HSSFSheet i, HashMap<String, Settings> optimal) {
+		if (i.getSheetName().equals("SP2"))
+			optimal.put(i.getSheetName(), XlSUtils.predictionSettings(i, 2015));
+	}
+	
 	//Todo: da risolvere
 	public static void makePredictions() throws IOException, InterruptedException, ParseException {
 		String basePath = new File("").getAbsolutePath();
@@ -766,13 +770,7 @@ public class Test {
 		} catch (Exception e) {
 			System.out.println("Something was wrong");
 		} finally {
-			if (file != null) {
-				try {
-					file.close (); // OK
-				} catch (java.io.IOException e3) {
-					System.out.println("I/O Exception");
-               }
-			}
+			controlIfOptimalsByCompetition(file);
 		}
 		
 		HSSFSheet sheet = workbook.getSheetAt(0);
@@ -785,21 +783,16 @@ public class Test {
 		} catch (Exception e) {
 			System.out.println("Something was wrong");
 		} finally {
-			if (filedata != null) {
-				try {
-					filedata.close (); // OK
-				} catch (java.io.IOException e3) {
-					System.out.println("I/O Exception");
-               }
-			}
+			controlIfOptimalsByCompetition(filedata);
 		}
 
 		HashMap<String, Settings> optimal = new HashMap<>();
 		Iterator<Sheet> sh = workbookdata.sheetIterator();
 		while (sh.hasNext()) {
 			HSSFSheet i = (HSSFSheet) sh.next();
-			if (i.getSheetName().equals("SP2"))
-				optimal.put(i.getSheetName(), XlSUtils.predictionSettings(i, 2015));
+			controlIfMakePredictions(i, optimal);
+			/**if (i.getSheetName().equals("SP2"))
+				optimal.put(i.getSheetName(), XlSUtils.predictionSettings(i, 2015));*/
 		}
 
 		for (ExtendedFixture f : fixtures) {
