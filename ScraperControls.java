@@ -701,10 +701,8 @@ class ScraperControls {
 			System.out.println(s);
 	}
 	
-	static void controlResElement(WebElement resElement, String resString, Result fullResult, Result htResult){
-		if (resElement != null && (resString.contains("penalties") || resString.contains("ET"))) {
-			return null;
-		}
+	private static void controlIfResElement(WebElement resElement, String resString, Result fullResult,
+			Result htResult, String away, String home) {
 		if (resElement != null && (resString.contains("awarded") && resString.contains(home))) {
 			fullResult = new Result(3, 0);
 			htResult = new Result(3, 0);
@@ -713,6 +711,13 @@ class ScraperControls {
 			fullResult = new Result(0, 3);
 			htResult = new Result(0, 3);
 		}
+	}
+	
+	static void controlResElement(WebElement resElement, String resString, Result fullResult, Result htResult, String away, String home){
+		if (resElement != null && (resString.contains("penalties") || resString.contains("ET"))) {
+			return null;
+		}
+		controlIfResElement(resElement, resString, away, home);
 	}
 	
 	static void controlText(String text, float min, WebElement opt, WebElement div){

@@ -1517,7 +1517,7 @@ public class Scraper {
 		try {
 			WebElement resElement = driver.findElement(By.xpath("//*[@id='event-status']/p"));
 			String resString = resElement.getText();
-			ScraperControls.controlResElement(resElement, resString, fullResult, htResult);
+			ScraperControls.controlResElement(resElement, resString, fullResult, htResult, home, away);
 			/**if (resElement != null && (resString.contains("penalties") || resString.contains("ET"))) {
 				return null;
 			}
