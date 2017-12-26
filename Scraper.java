@@ -1558,7 +1558,6 @@ public class Scraper {
 
 	public static FullFixture getFullFixture(WebDriver driver, String i, String competition)
 			throws ParseException, InterruptedException {
-		// System.out.println(i);
 
 		driver.navigate().to(i);
 
@@ -1578,27 +1577,9 @@ public class Scraper {
 		try {
 			WebElement resElement = driver.findElement(By.xpath("//*[@id='event-status']/p"));
 			String resString = resElement.getText();
+			
 			ScraperControls.controlResElement(resElement, resString, fullResult, htResult);
-			/**if (resElement != null && (resString.contains("penalties") || resString.contains("ET"))) {
-				return null;
-			}
-			if (resElement != null && (resString.contains("awarded") && resString.contains(home))) {
-				fullResult = new Result(3, 0);
-				htResult = new Result(3, 0);
-			}
-			if (resElement != null && (resString.contains("awarded") && resString.contains(away))) {
-				fullResult = new Result(0, 3);
-				htResult = new Result(0, 3);
-			}
-			/**if (resElement != null && (resString.contains("(") && resString.contains(")"))) {
-				String full = resString.split(" ")[2];
-				String half = resString.split(" ")[3].substring(1, 4);
-				fullResult = new Result(Integer.parseInt(full.split(":")[0]), Integer.parseInt(full.split(":")[1]));
-				htResult = new Result(Integer.parseInt(half.split(":")[0]), Integer.parseInt(half.split(":")[1]));
-			} else {
-				fullResult = new Result(-1, -1);
-				htResult = new Result(-1, -1);
-			}*/
+			
 		} catch (Exception e) {
 			System.out.println("next match");
 		}
@@ -1608,40 +1589,12 @@ public class Scraper {
 		List<WebElement> rows = table.findElements(By.xpath("//div[1]/table/tbody/tr"));
 		Odds pinnOdds = null;
 
-		ArrayList<Odds> matchOdds = new ArrayList<>();
-		for (WebElement row : rows) {
-			List<WebElement> columns = row.findElements(By.xpath("td"));
-			ScraperControls.controlColumns(columns);
-			/**if (columns.size() < 4)
-				continue;
-			String bookmaker = columns.get(0).getText().trim();
-			if (Arrays.asList(MinMaxOdds.FAKEBOOKS).contains(bookmaker))
-				continue;*/
-			float homeOdds = Float.parseFloat(columns.get(1).getText().trim());
-			float drawOdds = Float.parseFloat(columns.get(2).getText().trim());
-			float awayOdds = Float.parseFloat(columns.get(3).getText().trim());
-
-			Odds modds = new MatchOdds(bookmaker, new Date(), homeOdds, drawOdds, awayOdds);
-			matchOdds.add(modds);
-
-			if (bookmaker.equals("Pinnacle"))
-				pinnOdds = modds;
-
-			// System.out.println(modds);
-		}
-
-		checkValueOverPinnacleOdds(matchOdds, pinnOdds);
+		ScraperControls.controlTripleFloat(rows, pinnOdds);
 
 		// Over and under odds
 		float overOdds = -1f, underOdds = -1f;
 		List<WebElement> tabs = driver.findElements(By.xpath("//*[@id='bettype-tabs']/ul/li"));
 		ScraperControls.controlContainsAh(tabs, "O/U");
-		/**for (WebElement t : tabs){
-			if (t.getText().contains("O/U")) {
-				t.click();
-				break;
-			}
-		}*/
 
 		WebElement div25 = null;
 		main.Line twoAndHalf = null;
@@ -1652,182 +1605,23 @@ public class Scraper {
 		WebElement optGoals = null;
 		float minGoals = 100f;
 		List<WebElement> divsGoals = driver.findElements(By.xpath("//*[@id='odds-data-table']/div"));
+		
 		try {
 			ScraperControls.controlForDiv25(divsGoals, div25, div, minGoals, optGoals);
-			/**for (WebElement div : divsGoals) {
-				if (div.getText().contains("+2.5")) {
-					div25 = div;
-				}
-				ScraperControls.controlSplit(div, minGoals, optGoals);
-				/**if (text.split("\n").length > 3) {
-					float diff = Math.abs(Float.parseFloat(text.split("\n")[2].trim())
-							- Float.parseFloat(text.split("\n")[3].trim()));
-				}
-				if (text.split("\n").length > 3 && diff < minGoals) {
-					minGoals = diff;
-					optGoals = div;
-				}
-			}*/
 		} catch (Exception e) {
 			// System.out.println("asian problem" + home + " " + away);
 		}
 
-		int indexOfOptimalGoals = optGoals == null ? -1 : divsGoals.indexOf(optGoals);
+		int indexOfOptimalGoals = optGoals == null ? -1 : divsGoals.indexOf(optGoals); //QUESTO E' IF
 
 		ArrayList<main.Line> goalLines  = new ArrayList<>();
 
-		if (optGoals != null)
-
-		{
-			int lower = (indexOfOptimalGoals - 6) < 0 ? 0 : (indexOfOptimalGoals - 6);
-			int higher = (indexOfOptimalGoals + 6) > (divsGoals.size() - 1) ? (divsGoals.size() - 1)
-					: (indexOfOptimalGoals + 6);
-
-			long startt = System.currentTimeMillis();
-			for (int j = lower; j <= higher; j++) {
-				WebElement currentDiv = divsGoals.get(j);
-				if (currentDiv == null || currentDiv.getText().split("\n").length < 3)
-					continue;
-
-				Actions actions = createAction(driver);
-				actions.moveToElement(currentDiv).click().perform();
-				// currentDiv.click();
-				WebElement goalLineTable = currentDiv.findElement(By.xpath("//table"));
-
-				// find the row
-				List<WebElement> rowsGoals = goalLineTable.findElements(By.xpath("//tbody/tr"));
-				float line = -1f, over = -1f, under = -1f;
-
-				// System.out.println(rowsGoals.size());
-				ScraperControls.controlRowsGoals(rowsGoals, line, over, under);
-				/**for (int r = rowsGoals.size() - 1; r >= 0; r--) {
-					WebElement row = rowsGoals.get(r);
-					if (row.getText().contains("Pinnacle")) {
-						// System.out.println(rowsGoals.indexOf(row));
-						String textOdds = row.getText();
-						line = Float.parseFloat(textOdds.split("\n")[1].trim());
-						over = Float.parseFloat(textOdds.split("\n")[2].trim());
-						under = Float.parseFloat(textOdds.split("\n")[3].trim());
-						break;
-					}
-
-					if (row.getText().contains("Average"))
-						break;
-				}*/
-
-				ScraperControls.controlOver(over, goalLines,line, over, under, twoAndHalf, currentDiv, actions);
-				/**if (over != -1f)
-					goalLines.add(new main.Line(line, over, under, "Pinn"));
-				
-				if (over != -1f && Float.compare(line, 2.5f)==0)
-					twoAndHalf = new main.Line(line, over, under, "Pinn");
-
-				List<WebElement> closeLink = currentDiv.findElements(By.className("odds-co"));
-				if (!closeLink.isEmpty())
-					actions.moveToElement(closeLink.get(0)).click().perform();
-
-				if (goalLines.size() == 6)
-					break;*/
-			}
-			// System.out.println("one click cycle " +
-			// (System.currentTimeMillis() - startt) / 1000d + "sec");
-			System.out.println(goalLines);
-
-			int indexMinDiff = -1;
-			float minDiff = 100f;
-			ScraperControls.controlDiff(goalLines, minDiff, indexMinDiff);
-			/**for (int l = 0; l < goalLines.size(); l++) {
-				float diff = Math.abs(goalLines.get(l).home - goalLines.get(l).away);
-				if (diff < minDiff) {
-					minDiff = diff;
-					indexMinDiff = l;
-				}
-			}*/
-
-			int start = indexMinDiff - 2 < 0 ? 0 : indexMinDiff - 2;
-			int end = indexMinDiff + 2 > goalLines.size() - 1 ? goalLines.size() - 1 : indexMinDiff + 2;
-
-			int expectedCaseSize = end - start + 1;
-			if (goalLines.size() == 5) {
-				GLS = new GoalLines(goalLines.get(0), goalLines.get(1), goalLines.get(2), goalLines.get(3),
-						goalLines.get(4));
-			}
-			
-			ScraperControls.controlGoalLines(goalLines, expectedCaseSize, start, end, indexMinDiff, GLS);
-			/**if (goalLines.size()  && expectedCaseSize == 5) {
-				ArrayList<main.Line> bestLines = new ArrayList<>();
-				for (int c = start; c <= end; c++)
-					bestLines.add(goalLines.get(c));
-				
-				GLS = new GoalLines(bestLines.get(0), bestLines.get(1), bestLines.get(2), bestLines.get(3),
-						bestLines.get(4));
-				}
-			if (goalLines.size()  && expectedCaseSize == 4 && indexMinDiff - 2 < 0) {
-				GLS = new GoalLines(goalLines.get(indexMinDiff - 1), goalLines.get(indexMinDiff),
-						goalLines.get(indexMinDiff + 1), goalLines.get(indexMinDiff + 2),
-						goalLines.get(indexMinDiff + 3));
-			}
-			if (goalLines.size()  && expectedCaseSize == 4 && indexMinDiff - 2 >= 0 && indexMinDiff + 2 > goalLines.size() - 1) {
-				GLS = new GoalLines(goalLines.get(indexMinDiff - 3), goalLines.get(indexMinDiff - 2),
-						goalLines.get(indexMinDiff - 1), goalLines.get(indexMinDiff),
-						goalLines.get(indexMinDiff + 1));
-			}*/
-			
-			ScraperControls.controlTwoGoalLines(goalLines, indexMinDiff, GLS);
-			/**if (goalLines.size() <= 5 && goalLines.size() == 4 && indexMinDiff - 2 < 0) {
-				GLS = new GoalLines(new main.Line(-1, -1, -1, "Pinn"), goalLines.get(0), goalLines.get(1),
-						goalLines.get(2), goalLines.get(3));
-			} else {
-				GLS = new GoalLines(goalLines.get(0), goalLines.get(1), goalLines.get(2), goalLines.get(3),
-					  new main.Line(-1, -1, -1, "Pinn"));
-			}
-			
-			if (goalLines.size() <= 5 && goalLines.size() == 1)
-				GLS.main = goalLines.get(0);
-			if (goalLines.size() <= 5 && goalLines.size() != 4) {
-				System.out.println("tuka");
-			}*/
-
-			ScraperControls.controlTwoAndHalf(twoAndHalf, div25, goalLines, overOdds, underOdds);
-			/**if (twoAndHalf == null) {
-				System.out.println("Missing 2.5 goal line");
-				div25.click();
-
-				WebElement goalLineTable = div25.findElement(By.xpath("//table"));
-
-				// getFirstResult for over 2.5 if pinaccle lacks the line
-				List<WebElement> rowsGoals = goalLineTable.findElements(By.xpath("//tbody/tr"));
-			} else {
-				ScraperControls.controlForOverUnder(goalLines, overOdds, underOdds);
-				/**for (main.Line line : goalLines) {
-					if (line.line == 2.5) {
-						overOdds = line.home;
-						underOdds = line.away;
-						break;
-					}
-				}
-			}*/
-			if (twoAndHalf == null && rowsGoals.size() >= 2) {
-				WebElement row = rowsGoals.get(1);
-				String textOdds = row.getText();
-				try {
-					overOdds = Float.parseFloat(textOdds.split("\n")[2].trim());
-					underOdds = Float.parseFloat(textOdds.split("\n")[3].trim());
-				} catch (Exception e) {
-
-				}
-			}
-		}
+		ScraperControls.controlBigIfGetFullFixture(optGoals, indexOfOptimalGoals, divsGoals, driver, twoAndHalf, goalLines,
+				GLS, div25, overOdds, underOdds);
 
 		// -----------------------------------------------------------------------
 		// Asian handicap
 		ScraperControls.controlContainsAh(tabs, "AH");
-		/**for (WebElement t : tabs) {
-			if (t.getText().contains("AH")) {
-				t.click();
-				break;
-			}
-		}*/
 
 		// Asian with closest line
 		AsianLines asianLines = new AsianLines(def, def, def, def, def);
@@ -1839,14 +1633,6 @@ public class Scraper {
 			for (WebElement div : divsAsian) {
 				String text = div.getText();
 				controlText(text, min, opt, div);
-				/**if (text.split("\n").length > 3) {
-					float diff = Math.abs(Float.parseFloat(text.split("\n")[2].trim())
-							- Float.parseFloat(text.split("\n")[3].trim()));
-				}
-				if (text.split("\n").length > 3 && diff < min) {
-					min = diff;
-					opt = div;
-				}*/
 			}
 		} catch (Exception e) {
 			// System.out.println("asian problem" + home + " " + away);
@@ -1856,109 +1642,7 @@ public class Scraper {
 
 		ArrayList<main.Line> lines = new ArrayList<>();
 
-		if (opt != null)
-
-		{
-			int lower = (indexOfOptimal - 5) < 0 ? 0 : (indexOfOptimal - 5);
-			int higher = (indexOfOptimal + 5) > (divsAsian.size() - 1) ? (divsAsian.size() - 1) : (indexOfOptimal + 5);
-
-			for (int j = lower; j <= higher; j++) {
-				WebElement currentDiv = divsAsian.get(j);
-				if (currentDiv == null || currentDiv.getText().split("\n").length < 3)
-					continue;
-
-				// currentDiv.click();
-				Actions actions = createAction(driver);
-				actions.moveToElement(currentDiv).click().perform();
-
-				WebElement AHTable = currentDiv.findElement(By.xpath("//table"));
-
-				// find the row
-				List<WebElement> rowsAsian = AHTable.findElements(By.xpath("//tbody/tr"));
-				float line = -1f, asianHome = -1f, asianAway = -1f;
-
-				controlRowsGoals(List<WebElement> rowsAsian, line, asianHome, asianAway);
-				/**for (int r = rowsAsian.size() - 1; r >= 0; r--) {
-					WebElement row = rowsAsian.get(r);
-					if (row.getText().contains("Pinnacle")) {
-						String textOdds = row.getText();
-						line = Float.parseFloat(textOdds.split("\n")[1].trim());
-						asianHome = Float.parseFloat(textOdds.split("\n")[2].trim());
-						asianAway = Float.parseFloat(textOdds.split("\n")[3].trim());
-						break;
-					}
-
-					if (row.getText().contains("Average"))
-						break;
-				}*/
-
-				ScraperControls.controlOverTwo(asianHome, lines, line, asianAway, currentDiv, actions);
-				/** if (asianHome != -1f)
-					lines.add(new main.Line(line, asianHome, asianAway, "Pinn"));
-
-				List<WebElement> closeLink = currentDiv.findElements(By.className("odds-co"));
-				if (!closeLink.isEmpty()) {
-					actions.moveToElement(closeLink.get(0)).click().perform();
-				}
-
-				if (lines.size() == 6)
-					break;
-					*/
-			}
-			System.out.println(lines);
-
-			int indexMinDiff = -1;
-			float minDiff = 100f;
-			for (int l = 0; l < lines.size(); l++) {
-				float diff = Math.abs(lines.get(l).home - lines.get(l).away);
-				if (diff < minDiff) {
-					minDiff = diff;
-					indexMinDiff = l;
-				}
-			}
-
-			int start = indexMinDiff - 2 < 0 ? 0 : indexMinDiff - 2;
-			int end = indexMinDiff + 2 > lines.size() - 1 ? lines.size() - 1 : indexMinDiff + 2;
-
-			int expectedCaseSize = end - start + 1;
-			if (lines.size() == 5) {
-				asianLines = new AsianLines(lines.get(0), lines.get(1), lines.get(2), lines.get(3), lines.get(4));
-			}
-
-			ScraperControls.controlAsianLines(lines, expectedCaseSize, start, end, indexMinDiff, asianLines);
-			/**if (lines.size() > 5 && expectedCaseSize == 5) {
-				ArrayList<main.Line> bestLines = new ArrayList<>();
-				for (int c = start; c <= end; c++) {
-					bestLines.add(lines.get(c));
-					}
-				asianLines = new AsianLines(lines.get(0), lines.get(1), lines.get(2), lines.get(3), lines.get(4));
-				} 
-			if (lines.size() > 5 && expectedCaseSize == 4 && indexMinDiff - 2 < 0) {
-				asianLines = new AsianLines(lines.get(indexMinDiff - 1), lines.get(indexMinDiff),
-						lines.get(indexMinDiff + 1), lines.get(indexMinDiff + 2), lines.get(indexMinDiff + 3));
-			} 
-			if (lines.size() > 5 && expectedCaseSize == 4 && indexMinDiff + 2 > lines.size() - 1) {
-				asianLines = new AsianLines(lines.get(indexMinDiff - 3), lines.get(indexMinDiff - 2),
-						lines.get(indexMinDiff - 1), lines.get(indexMinDiff), lines.get(indexMinDiff + 1));
-			}*/
-			
-//			if(lines.size() <= 5 || expectedCaseSize != 4)
-//				System.out.println("tuka");
-			
-			ScraperControls.controlTwoAsianLines(lines, indexMinDiff, asianLines);
-			/**if (lines.size() == 4 && indexMinDiff - 2 < 0) {
-				asianLines = new AsianLines(new main.Line(-1, -1, -1, "Pinn"), lines.get(0), lines.get(1),
-						lines.get(2), lines.get(3));
-			} 
-			if(lines.size() == 4 && indexMinDiff - 2 >= 0) {
-				asianLines = new AsianLines(lines.get(0), lines.get(1), lines.get(2), lines.get(3),
-						new main.Line(-1, -1, -1, "Pinn"));
-			} 
-			if (lines.size() != 4 && lines.size() == 1)
-				asianLines.main = lines.get(0);*/
-//			if (lines.size() <= 5 && lines.size() != 4)
-//				System.out.println("tuka");
-		}
+		ScraperControls.controlFinalBigIf(opt, indexOfOptimal, divsAsian, driver, lines, asianLines);
 		
 		ExtendedFixture ef = new FullFixture(date, home, away, fullResult, competition).withHTResult(htResult)
 				.with1X2Odds(-1f, -1f, -1f).withAsian(asianLines.main.line, asianLines.main.home, asianLines.main.away)

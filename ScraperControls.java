@@ -34,7 +34,7 @@ class ScraperControls {
 		return new Elements();
 	}
 
-	private static Actions createAction(WebDriver driver) {
+	static Actions createAction(WebDriver driver) {
 		return new Actions(driver);
 	}
 
@@ -1261,6 +1261,159 @@ class ScraperControls {
 				actions.moveToElement(closeLink.get(0)).click().perform();
 			}
 		}
+	}
+	
+	static void controlBigForGetFullFixture(int lower, int higher, List<WebElement> divsGoals, WebDriver driver, main.Line twoAndHalf) {
+		
+		for (int j = lower; j <= higher; j++) {
+			WebElement currentDiv = divsGoals.get(j);
+			if (currentDiv == null || currentDiv.getText().split("\n").length < 3)
+				continue;
+	
+			Actions actions = createAction(driver);
+			actions.moveToElement(currentDiv).click().perform();
+			WebElement goalLineTable = currentDiv.findElement(By.xpath("//table"));
+	
+			// find the row
+			List<WebElement> rowsGoals = goalLineTable.findElements(By.xpath("//tbody/tr"));
+			float line = -1f, over = -1f, under = -1f;
+	
+			// System.out.println(rowsGoals.size());
+			controlRowsGoals(rowsGoals, line, over, under);
+	
+			controlOver(over, goalLines,line, over, under, twoAndHalf, currentDiv, actions);
+		}
+	}
+	
+	static void controlFirstForOnIf(int lower, int higher, List<WebElement> divsAsian, WebDriver driver, float line) {
+		for (int j = lower; j <= higher; j++) {
+			WebElement currentDiv = divsAsian.get(j);
+			if (currentDiv == null || currentDiv.getText().split("\n").length < 3)
+				continue;
+	
+			// currentDiv.click();
+			Actions actions = createAction(driver);
+			actions.moveToElement(currentDiv).click().perform();
+	
+			WebElement AHTable = currentDiv.findElement(By.xpath("//table"));
+	
+			// find the row
+			List<WebElement> rowsAsian = AHTable.findElements(By.xpath("//tbody/tr"));
+			float line = -1f, asianHome = -1f, asianAway = -1f;
+	
+			controlRowsGoals(rowsAsian, line, asianHome, asianAway);
+	
+			controlOverTwo(asianHome, lines, line, asianAway, currentDiv, actions);
+		}
+	}
+	
+	static void controlTwoAndHalfPart2(main.Line twoAndHalf, float overOdds, float underOdds) {
+		if (twoAndHalf == null && rowsGoals.size() >= 2) {
+			WebElement row = rowsGoals.get(1);
+			String textOdds = row.getText();
+			try {
+				overOdds = Float.parseFloat(textOdds.split("\n")[2].trim());
+				underOdds = Float.parseFloat(textOdds.split("\n")[3].trim());
+			} catch (Exception e) {
+	
+			}
+		}
+	}
+	
+	static void controlBigIfGetFullFixture(WebElement optGoals, int indexOfOptimalGoals, List<WebElement> divsGoals, WebDriver driver, main.Line twoAndHalf, 
+			ArrayList<main.Line> goalLines, GoalLines GLS, div25, float overOdds, float underOdds);
+	if (optGoals != null) {
+		int lower = (indexOfOptimalGoals - 6) < 0 ? 0 : (indexOfOptimalGoals - 6);
+		int higher = (indexOfOptimalGoals + 6) > (divsGoals.size() - 1) ? (divsGoals.size() - 1)
+				: (indexOfOptimalGoals + 6);
+
+		long startt = System.currentTimeMillis();
+		ScraperControls.controlBigForGetFullFixture(lower, higher, divsGoals, driver, twoAndHalf);
+		
+		System.out.println(goalLines);
+
+		int indexMinDiff = -1;
+		float minDiff = 100f;
+		ScraperControls.controlDiff(goalLines, minDiff, indexMinDiff);
+
+		int start = indexMinDiff - 2 < 0 ? 0 : indexMinDiff - 2;
+		int end = indexMinDiff + 2 > goalLines.size() - 1 ? goalLines.size() - 1 : indexMinDiff + 2;
+
+		int expectedCaseSize = end - start + 1;
+		if (goalLines.size() == 5) {
+			GLS = new GoalLines(goalLines.get(0), goalLines.get(1), goalLines.get(2), goalLines.get(3),
+					goalLines.get(4));
+		}
+		
+		controlGoalLines(goalLines, expectedCaseSize, start, end, indexMinDiff, GLS);
+		
+		controlTwoGoalLines(goalLines, indexMinDiff, GLS);
+
+		controlTwoAndHalf(twoAndHalf, div25, goalLines, overOdds, underOdds);
+		
+		controlTwoAndHalfPart2(twoAndHalf, overOdds, underOdds);
+	}
+
+	static void controlTripleFloat(List<WebElement> rows, Odds pinnOdds) {
+	
+		ArrayList<Odds> matchOdds = new ArrayList<>();
+		for (WebElement row : rows) {
+			List<WebElement> columns = row.findElements(By.xpath("td"));
+			
+			ScraperControls.controlColumns(columns);
+			
+			float homeOdds = Float.parseFloat(columns.get(1).getText().trim());
+			float drawOdds = Float.parseFloat(columns.get(2).getText().trim());
+			float awayOdds = Float.parseFloat(columns.get(3).getText().trim());
+	
+			Odds modds = new MatchOdds(bookmaker, new Date(), homeOdds, drawOdds, awayOdds);
+			matchOdds.add(modds);
+	
+			if (bookmaker.equals("Pinnacle"))
+				pinnOdds = modds;
+		}
+	
+		checkValueOverPinnacleOdds(matchOdds, pinnOdds);
+		
+	}
+	
+	static void controlForMinDiff(ArrayList<main.Line> lines) {
+		for (int l = 0; l < lines.size(); l++) {
+			float diff = Math.abs(lines.get(l).home - lines.get(l).away);
+			if (diff < minDiff) {
+				minDiff = diff;
+				indexMinDiff = l;
+			}
+		}
+	}
+	
+	static void controlFinalBigIf(WebElement opt, int indexOfOptimal, List<WebElement> divsAsian, WebElement driver,
+			ArrayList<main.Line> lines, AsianLines asianLines) {
+		
+		if (opt != null) {
+			int lower = (indexOfOptimal - 5) < 0 ? 0 : (indexOfOptimal - 5);
+			int higher = (indexOfOptimal + 5) > (divsAsian.size() - 1) ? (divsAsian.size() - 1) : (indexOfOptimal + 5);
+	
+			ScraperControls.controlFirstForOnIf(lower, higher, divsAsian, driver, line);
+			System.out.println(lines);
+	
+			int indexMinDiff = -1;
+			float minDiff = 100f;
+			
+			ScraperControls.controlForMinDiff(lines);
+			
+			int start = indexMinDiff - 2 < 0 ? 0 : indexMinDiff - 2;
+			int end = indexMinDiff + 2 > lines.size() - 1 ? lines.size() - 1 : indexMinDiff + 2;
+	
+			int expectedCaseSize = end - start + 1;
+			if (lines.size() == 5) {
+				asianLines = new AsianLines(lines.get(0), lines.get(1), lines.get(2), lines.get(3), lines.get(4));
+			}
+	
+			ScraperControls.controlAsianLines(lines, expectedCaseSize, start, end, indexMinDiff, asianLines);
+			
+			ScraperControls.controlTwoAsianLines(lines, indexMinDiff, asianLines);
+		} 
 	}
 	
 	
