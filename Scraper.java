@@ -1564,7 +1564,7 @@ public class Scraper {
 	private static void asianOverPinnacle(WebDriver driver) {
 		long start = System.currentTimeMillis();
 		List<WebElement> tabs = driver.findElements(By.xpath("//*[@id='bettype-tabs']/ul/li"));
-		ScraperControls.controlContainsAh(tabs, "AH")
+		ScraperControls.controlContainsAh(tabs, "AH");
 		/**for (WebElement t : tabs) {
 			if (t.getText().contains("AH")) {
 				t.click();
