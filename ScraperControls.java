@@ -352,6 +352,18 @@ class ScraperControls {
 		}
 	}
 
+	static void controlIfElseNotNull(WebElement resElement, String resString, Result fullResult, Result htResult){
+		if (resElement != null && (resString.contains("(") && resString.contains(")"))) {
+			String full = resString.split(" ")[2];
+			String half = resString.split(" ")[3].substring(1, 4);
+			fullResult = new Result(Integer.parseInt(full.split(":")[0]), Integer.parseInt(full.split(":")[1]));
+			htResult = new Result(Integer.parseInt(half.split(":")[0]), Integer.parseInt(half.split(":")[1]));
+		} else {
+			fullResult = new Result(-1, -1);
+			htResult = new Result(-1, -1);
+		}
+	}
+	
 	static void controlPinnIndex(WebElement row, List<WebElement> customer, int pinnIndex){
 		if (row.getText().contains("Pinnacle"))
 			pinnIndex = customer.indexOf(row) + 1;
@@ -400,6 +412,19 @@ class ScraperControls {
 			} catch (Exception e) {
 				// nothing
 			}
+		}
+	}
+	
+	static void controlForOdds(WebElement row, List<WebElement> rows, float overOdds, float underOdds, float overOdds365, float underOdds365){
+		for (WebElement row : rows) {
+			controlOdds(row, overOdds, underOdds, overOdds365, underOdds365);
+		}
+	}
+	
+	static void controlFloat(float overOdds, float overOdds365, float underOdds, float underOdds365){
+		if (Float.compare(overOdds, -1f)==0) {
+			overOdds = overOdds365;
+			underOdds = underOdds365;
 		}
 	}
 	

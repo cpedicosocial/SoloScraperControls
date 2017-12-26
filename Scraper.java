@@ -1312,7 +1312,8 @@ public class Scraper {
 					htResult = new Result(0, 3);
 				}*/
 				
-				if (resElement != null && (resString.contains("(") && resString.contains(")"))) {
+				ScraperControls.controlIfElseNotNull(resElement, resString, fullResult, htResult);
+				/**if (resElement != null && (resString.contains("(") && resString.contains(")"))) {
 					String full = resString.split(" ")[2];
 					String half = resString.split(" ")[3].substring(1, 4);
 					fullResult = new Result(Integer.parseInt(full.split(":")[0]), Integer.parseInt(full.split(":")[1]));
@@ -1320,7 +1321,7 @@ public class Scraper {
 				} else {
 					fullResult = new Result(-1, -1);
 					htResult = new Result(-1, -1);
-				}
+				}*/
 		} catch (Exception e) {
 			System.out.println("next match");
 		}
@@ -1339,12 +1340,12 @@ public class Scraper {
 			if (row.getText().contains("bet365"))
 				pinnIndex = customer.indexOf(row) + 1;*/
 		}
+		
 		if (pinnIndex < 0) {
 			System.out.println("Could not find pinnacle");
 			pinnIndex = Index365;
-		}
-		if (pinnIndex < 0 && pinnIndex < 0)
 			pinnIndex = 1;
+		}
 
 		float homeOdds = Float
 				.parseFloat(table.findElement(By.xpath("//div[1]/table/tbody/tr[" + pinnIndex + "]/td[2]")).getText());
@@ -1400,7 +1401,8 @@ public class Scraper {
 			// find the row
 			List<WebElement> rows = OUTable.findElements(By.xpath("//tr"));
 
-			for (WebElement row : rows) {
+			ScraperControls.controlForOdds(row, rows, overOdds, underOdds, overOdds365, underOdds365);
+			/**for (WebElement row : rows) {
 				ScraperControls.controlOdds(row, overOdds, underOdds, overOdds365, underOdds365);
 				/**if (row.getText().contains("Pinnacle")) {
 					String textOdds = row.getText();
@@ -1417,13 +1419,14 @@ public class Scraper {
 					} catch (Exception e) {
 						// nothing
 					}
-				}*/
-			}
+				}
+			}*/
 
-			if (Float.compare(overOdds, -1f)==0) {
+			ScraperControls.controlFloat(overOdds, overOdds365, underOdds, underOdds365);
+			/**if (Float.compare(overOdds, -1f)==0) {
 				overOdds = overOdds365;
 				underOdds = underOdds365;
-			}
+			}*/
 
 		}
 		
