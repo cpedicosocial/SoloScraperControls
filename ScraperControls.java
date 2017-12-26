@@ -753,11 +753,24 @@ class ScraperControls {
 		}
 	}
 	
+	private static void controlIfElseResElement(WebElement resElement, String resString, Result fullResult, Result htResult){
+		if (resElement != null && (resString.contains("(") && resString.contains(")"))) {
+			String full = resString.split(" ")[2];
+			String half = resString.split(" ")[3].substring(1, 4);
+			fullResult = new Result(Integer.parseInt(full.split(":")[0]), Integer.parseInt(full.split(":")[1]));
+			htResult = new Result(Integer.parseInt(half.split(":")[0]), Integer.parseInt(half.split(":")[1]));
+		} else {
+			fullResult = new Result(-1, -1);
+			htResult = new Result(-1, -1);
+		}
+	}
+	
 	static void controlResElement(WebElement resElement, String resString, Result fullResult, Result htResult, String away, String home){
 		if (resElement != null && (resString.contains("penalties") || resString.contains("ET"))) {
 			return null;
 		}
 		controlIfResElement(resElement, resString, away, home);
+		controlIfElseResElement(resElement, resString, fullResult, htResult);
 	}
 	
 	static void controlText(String text, float min, WebElement opt, WebElement div){
@@ -810,6 +823,15 @@ class ScraperControls {
 		String bookmaker = columns.get(0).getText().trim();
 		if (Arrays.asList(MinMaxOdds.FAKEBOOKS).contains(bookmaker))
 			continue;
+	}
+	
+	static void controlForDiv25(List<WebElement> divsGoals, WebElement div25, WebElement div, float minGoals, WebElement optGoals){
+		for (WebElement div : divsGoals) {
+			if (div.getText().contains("+2.5")) {
+				div25 = div;
+			}
+			controlSplit(div, minGoals, optGoals);
+		}
 	}
 	
 	static void controlRowsGoals(List<WebElement> x, float line, float y, float z){
@@ -897,6 +919,19 @@ class ScraperControls {
 				underOdds = line.away;
 				break;
 			}
+		}
+	}
+
+	static void controlTwoAndHalf(main.Line twoAndHalf, WebElement div25, ArrayList<main.Line> goalLines, float overOdds, float underOdds){
+		if (twoAndHalf == null) {
+			System.out.println("Missing 2.5 goal line");
+			div25.click();
+	
+			WebElement goalLineTable = div25.findElement(By.xpath("//table"));
+	
+			List<WebElement> rowsGoals = goalLineTable.findElements(By.xpath("//tbody/tr"));
+		} else {
+			controlForOverUnder(goalLines, overOdds, underOdds);
 		}
 	}
 	

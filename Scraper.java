@@ -1433,7 +1433,7 @@ public class Scraper {
 		
 		// Asian handicap
 		try {
-			ScraperControls.controlContainsAh(tabs);//DA VALUTARE
+			ScraperControls.controlContainsAh(tabs, "AH");//DA VALUTARE
 			/**for (WebElement t : tabs) {
 				if (t.getText().contains("AH")) {
 					t.click();
@@ -1564,12 +1564,13 @@ public class Scraper {
 	private static void asianOverPinnacle(WebDriver driver) {
 		long start = System.currentTimeMillis();
 		List<WebElement> tabs = driver.findElements(By.xpath("//*[@id='bettype-tabs']/ul/li"));
-		for (WebElement t : tabs) {
+		ScraperControls.controlContainsAh(tabs, "AH")
+		/**for (WebElement t : tabs) {
 			if (t.getText().contains("AH")) {
 				t.click();
 				break;
 			}
-		}
+		}*/
 
 		WebElement opt = null;
 		float min = 100f;
@@ -1824,8 +1825,8 @@ public class Scraper {
 			if (resElement != null && (resString.contains("awarded") && resString.contains(away))) {
 				fullResult = new Result(0, 3);
 				htResult = new Result(0, 3);
-			}*/
-			if (resElement != null && (resString.contains("(") && resString.contains(")"))) {
+			}
+			/**if (resElement != null && (resString.contains("(") && resString.contains(")"))) {
 				String full = resString.split(" ")[2];
 				String half = resString.split(" ")[3].substring(1, 4);
 				fullResult = new Result(Integer.parseInt(full.split(":")[0]), Integer.parseInt(full.split(":")[1]));
@@ -1833,7 +1834,7 @@ public class Scraper {
 			} else {
 				fullResult = new Result(-1, -1);
 				htResult = new Result(-1, -1);
-			}
+			}*/
 		} catch (Exception e) {
 			System.out.println("next match");
 		}
@@ -1870,14 +1871,13 @@ public class Scraper {
 		// Over and under odds
 		float overOdds = -1f, underOdds = -1f;
 		List<WebElement> tabs = driver.findElements(By.xpath("//*[@id='bettype-tabs']/ul/li"));
-		for (WebElement t : tabs)
-
-		{
+		ScraperControls.controlContainsAh(tabs, "O/U");
+		/**for (WebElement t : tabs){
 			if (t.getText().contains("O/U")) {
 				t.click();
 				break;
 			}
-		}
+		}*/
 
 		WebElement div25 = null;
 		main.Line twoAndHalf = null;
@@ -1889,7 +1889,8 @@ public class Scraper {
 		float minGoals = 100f;
 		List<WebElement> divsGoals = driver.findElements(By.xpath("//*[@id='odds-data-table']/div"));
 		try {
-			for (WebElement div : divsGoals) {
+			ScraperControls.controlForDiv25(divsGoals, div25, div, minGoals, optGoals);
+			/**for (WebElement div : divsGoals) {
 				if (div.getText().contains("+2.5")) {
 					div25 = div;
 				}
@@ -1901,8 +1902,8 @@ public class Scraper {
 				if (text.split("\n").length > 3 && diff < minGoals) {
 					minGoals = diff;
 					optGoals = div;
-				}*/
-			}
+				}
+			}*/
 		} catch (Exception e) {
 			// System.out.println("asian problem" + home + " " + away);
 		}
@@ -2023,7 +2024,8 @@ public class Scraper {
 				System.out.println("tuka");
 			}*/
 
-			if (twoAndHalf == null) {
+			ScraperControls.controlTwoAndHalf(twoAndHalf, div25, goalLines, overOdds, underOdds);
+			/**if (twoAndHalf == null) {
 				System.out.println("Missing 2.5 goal line");
 				div25.click();
 
@@ -2039,8 +2041,8 @@ public class Scraper {
 						underOdds = line.away;
 						break;
 					}
-				}*/
-			}
+				}
+			}*/
 			if (twoAndHalf == null && rowsGoals.size() >= 2) {
 				WebElement row = rowsGoals.get(1);
 				String textOdds = row.getText();
@@ -2055,7 +2057,7 @@ public class Scraper {
 
 		// -----------------------------------------------------------------------
 		// Asian handicap
-		controlContainsAh(List<WebElement> tabs);
+		ScraperControls.controlContainsAh(tabs, "AH");
 		/**for (WebElement t : tabs) {
 			if (t.getText().contains("AH")) {
 				t.click();
