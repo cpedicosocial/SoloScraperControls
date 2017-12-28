@@ -90,9 +90,6 @@ public class Scraper {
      * This field sets the final int variable
      */
 	public static final int CURRENT_YEAR = 2017;
-	
-	private final String SEPARATOR = SEPARATOR;
-	
 
 	public static void main(String[] args)
 			throws IOException, ParseException, InterruptedException, ExecutionException {
@@ -185,11 +182,10 @@ public class Scraper {
 			throws IOException, ParseException {
 		ArrayList<PlayerFixture> result = new ArrayList<>();
 		Set<PlayerFixture> set = new HashSet<>();
-		int wait = 10;
 
 		System.setProperty("webdriver.chrome.drive", "chromedriver.exe");
 		WebDriver driver = new ChromeDriver();
-		driver.manage().timeouts().implicitlyWait(wait, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		driver.manage().window().maximize();
 		driver.navigate().to(link);
 
@@ -247,7 +243,7 @@ public class Scraper {
 		ArrayList<String> result = new ArrayList<>();
 
 		Document page = Jsoup
-				.connect("http://www.soccerway.com/matches/2017/" + month + SEPARATOR + (day >= 10 ? day : ("0" + day)) + SEPARATOR)
+				.connect("http://www.soccerway.com/matches/2017/" + month + "/" + (day >= 10 ? day : ("0" + day)) + "/")
 				.timeout(0).get();
 
 		HashMap<String, String> leagueDescriptions = EntryPoints.getTrackingLeagueDescriptions();
@@ -255,7 +251,7 @@ public class Scraper {
 		for (Element i : linksM) {
 			String href = i.childNode(1).attr("href");
 			if (href.contains("national")) {
-				href = href.substring(0, StringUtils.ordinalIndexOf(href, SEPARATOR, 4) + 1);
+				href = href.substring(0, StringUtils.ordinalIndexOf(href, "/", 4) + 1);
 				if (leagueDescriptions.keySet().contains(href))
 					result.add(leagueDescriptions.get(href));
 			}
@@ -417,9 +413,9 @@ public class Scraper {
 		boolean breakFlag = false;
 		try {
 			for (int page = 1; page <= maxPage; page++) {
-				driver.navigate().to(address + "/results/#/page/" + page + SEPARATOR);
+				driver.navigate().to(address + "/results/#/page/" + page + "/");
 
-				String[] splitAddress = address.split(SEPARATOR);
+				String[] splitAddress = address.split("/");
 				String leagueYear = splitAddress[splitAddress.length - 1];
 				List<WebElement> list = driver.findElements(By.cssSelector("a[href*='" + leagueYear + "']"));
 				ArrayList<String> links = createArrayListString();
@@ -489,7 +485,7 @@ public class Scraper {
 
 		driver.navigate().to(address);
 
-		String[] splitAddress = address.split(SEPARATOR);
+		String[] splitAddress = address.split("/");
 		String leagueYear = splitAddress[splitAddress.length - 1];
 		List<WebElement> list = driver.findElements(By.cssSelector("a[href*='" + leagueYear + "']"));
 		ArrayList<String> links = new ArrayList<>();
@@ -895,9 +891,9 @@ public class Scraper {
 
 		try {
 			 for (int page = 1; page <= maxPage; page++) {
-				driver.navigate().to(address + "/results/#/page/" + page + SEPARATOR);
+				driver.navigate().to(address + "/results/#/page/" + page + "/");
 
-				String[] splitAddress = address.split(SEPARATOR);
+				String[] splitAddress = address.split("/");
 				String leagueYear = splitAddress[splitAddress.length - 1];
 				List<WebElement> list = driver.findElements(By.cssSelector("a[href*='" + leagueYear + "']"));
 				ArrayList<String> links = createArrayListString();
@@ -984,9 +980,9 @@ public class Scraper {
 
 		try {
 			 for (int page = 1; page <= maxPage; page++) {
-				driver.navigate().to(address + "/results/#/page/" + page + SEPARATOR);
+				driver.navigate().to(address + "/results/#/page/" + page + "/");
 
-				String[] splitAddress = address.split(SEPARATOR);
+				String[] splitAddress = address.split("/");
 				String leagueYear = splitAddress[splitAddress.length - 1];
 				WebElement table = driver.findElement(By.xpath("//div[@id='tournamentTable']"));
 				List<WebElement> el = table.findElements(By.cssSelector("a[href*='" + leagueYear + "']"));
@@ -1048,9 +1044,9 @@ public class Scraper {
 
 		try {
 			 while (true) {
-				driver.navigate().to(address + "/results/#/page/" + page + SEPARATOR);
+				driver.navigate().to(address + "/results/#/page/" + page + "/");
 
-				String[] splitAddress = address.split(SEPARATOR);
+				String[] splitAddress = address.split("/");
 				String leagueYear = splitAddress[splitAddress.length - 1];
 				List<WebElement> list = driver.findElements(By.cssSelector("a[href*='" + leagueYear + "']"));
 				ArrayList<String> links = createArrayListString();
@@ -1179,9 +1175,9 @@ public class Scraper {
 
 		try {
 			 for (int page = 1; page <= maxPage; page++) {
-				driver.navigate().to(address + "/results/#/page/" + page + SEPARATOR);
+				driver.navigate().to(address + "/results/#/page/" + page + "/");
 
-				String[] splitAddress = address.split(SEPARATOR);
+				String[] splitAddress = address.split("/");
 				String leagueYear = splitAddress[splitAddress.length - 1];
 				List<WebElement> list = driver.findElements(By.cssSelector("a[href*='" + leagueYear + "']"));
 				ArrayList<String> links = createArrayListString();
@@ -1892,4 +1888,15 @@ public class Scraper {
 		}
 		return true;
 	}
+	
+	static void controlWhileCollectFull(int fixtureCount, ArrayList<PlayerFixture> result) {
+		while (true) {
+			Document fixture = Jsoup.connect(BASE + linkM.attr("href")).timeout(30 * 1000).get();
+			ArrayList<PlayerFixture> ef = getFixtureFull(fixture, competition);
+			fixtureCount++;
+			result.addAll(ef);
+			break;
+			}
+	}
+	
 }
